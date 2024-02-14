@@ -32,9 +32,7 @@ This project aims at creating a tool to experiment with different techiques befo
 >$k_{max} = \frac{2}{5} N$ [Hou&Li-dealiasing]
 
 #### spatial resolution
->$\frac{k_{max}}{k_\nu} = c_{ref}$
-$\rightarrow \nu = c_{ref}²\,\epsilon^\frac{1}{3}\,k_f^\frac{2}{3}\,k_{max}^{-\frac{1}{2}}$
+>$\frac{k_{max}}{k_\nu} = c_{ref} \rightarrow \nu = c_{ref}²\,\epsilon^\frac{1}{3}\,k_f^\frac{2}{3}\,k_{max}^{-\frac{1}{2}}$
 
 #### friction force
->$k_\alpha = \epsilon^{-\frac{1}{2}}\,\alpha^{\frac{3}{2}}$
-$\rightarrow \alpha = k_\alpha^{\frac{2}{3}}\,\epsilon^{\frac{1}{3}}$
+>$k_\alpha = \epsilon^{-\frac{1}{2}}\,\alpha^{\frac{3}{2}} \rightarrow \alpha = k_\alpha^{\frac{2}{3}}\,\epsilon^{\frac{1}{3}}$
