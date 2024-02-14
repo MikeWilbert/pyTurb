@@ -15,8 +15,8 @@ L = 2.*np.pi
 ''' --- PARAMETERS --- '''
 N = 128
 eps0 = 1.
-k_a = 0.2
-k_f = 8
+k_a = 0.5
+k_f = 10
 c_res = 1.
 
 k_max = float(N) / 3.
@@ -30,6 +30,9 @@ print('k_a     =', k_a)
 print('k_f     =', k_f)
 print('k_nu    =', k_nu)
 print('k_max   =', k_max)
+print('')
+print('l_a/l_f  =', k_f/k_a)
+print('l_f/l_nu =', k_nu/k_f)
 print('')
 print('nu      =', nu)
 print('alpha   =', alpha)
