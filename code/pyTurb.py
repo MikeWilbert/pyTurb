@@ -153,39 +153,39 @@ def calc_force():
     return
   
   # Fourier Space
-  # ~ force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
+  force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
   
-  # ~ index = ( ( k2 > (k_f+dk_f)**2 ) | ( k2 < (k_f-dk_f)**2 )  )
-  # ~ force_W_F[index] = 0.
+  index = ( ( k2 > (k_f+dk_f)**2 ) | ( k2 < (k_f-dk_f)**2 )  )
+  force_W_F[index] = 0.
   
-  # ~ force_W = np.fft.ifft2(force_W_F)
-  # ~ force_W = force_W.real
-  # ~ force_W_F = np.fft.ifft2(force_W)
-  
-  # ~ # strength
-  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
-  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  # ~ force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
-  # ~ force_W_F *= np.sqrt(eps/dt) / force_energy
-  
-  # Real Space
-  F_R = np.zeros((N,N), dtype=complex)
-  
-  for ix in range(0, N//2+1):
-    for iy in range(0, N//2+1):
-    
-      i2 = ix**2+iy**2
-      if( ( i2 <= (k_f+dk_f)**2 ) & ( i2 >= (k_f-dk_f)**2 ) ):
-        
-        F_R += i2**(-0.25) * np.cos( x_val * ix + np.random.rand()*2.*np.pi ) * np.cos( y_val * iy + np.random.rand()*2.*np.pi )
-  
-  force_W_F = np.fft.fft2(F_R)
+  force_W = np.fft.ifft2(force_W_F)
+  force_W = force_W.real
+  force_W_F = np.fft.ifft2(force_W)
   
   # strength
   Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
   Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
+  force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
   force_W_F *= np.sqrt(eps/dt) / force_energy
+  
+  # Real Space
+  # ~ F_R = np.zeros((N,N), dtype=complex)
+  
+  # ~ for ix in range(0, N//2+1):
+    # ~ for iy in range(0, N//2+1):
+    
+      # ~ i2 = ix**2+iy**2
+      # ~ if( ( i2 <= (k_f+dk_f)**2 ) & ( i2 >= (k_f-dk_f)**2 ) ):
+        
+        # ~ F_R += i2**(-0.25) * np.cos( x_val * ix + np.random.rand()*2.*np.pi ) * np.cos( y_val * iy + np.random.rand()*2.*np.pi )
+  
+  # ~ force_W_F = np.fft.fft2(F_R)
+  
+  # ~ # strength
+  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
+  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
+  # ~ force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
+  # ~ force_W_F *= np.sqrt(eps/dt) / force_energy
   
 def step():
   global t, dt
@@ -250,4 +250,18 @@ def get_fields():
   W = np.fft.ifft2(W_F).real
   
   return W, W_F
+  
+def get_stats():
+  global W_F
+  global kx, ky, k2_inv
+  global nu
+  
+  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
+  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
+  
+  energy = 0.5 * np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 # N**2 wegen Parsevalls Theorem und N**2 wegen Mittelwert 
+  dissipation = np.sum( nu*np.abs(W_F)**2) / N**4
+  
+  return energy, dissipation
+  
   

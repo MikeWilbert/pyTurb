@@ -36,6 +36,22 @@ divider = make_axes_locatable(ax2)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im2, cax=cax, orientation='vertical')
 
+fig2, ((ax3,ax4)) = plt.subplots(1,2)
+line1, = ax3.plot([], [])
+line2, = ax4.plot([], [])
+ax3.set_xlim(0.,20.)
+ax3.set_ylim(0.,2.)  
+ax3.set_title(r'$Energy$')  
+ax3.grid()
+ax4.set_title(r'$Disspiation$')  
+ax4.set_xlim(0.,20.)
+ax4.set_ylim(0.,2.)  
+ax4.grid()
+
+energy = []
+diss   = []
+time   = [] 
+
 def anim_step(i):
   
   N_sub = 8
@@ -56,9 +72,31 @@ def anim_step(i):
   im2.set_clim(vmin=np.amin(np.abs(W_F)), vmax=np.amax(np.abs(W_F)))
   
   return im1, im2
+ 
+def anim_step2(i):
   
-anim = FuncAnimation(fig, anim_step, interval = 20, frames = frames, blit = False, repeat=False)
-# ~ anim2 = FuncAnimation(fig2, anim_step2, interval = 20, frames = frames, blit = False, repeat=False)
+  N_sub = 8
+  for i in range(N_sub):
+    pyTurb.step()
+  
+  t  = pyTurb.t
+  dt = pyTurb.dt
+  title = "time = " + str(round(t,4)) + ", dt = " + str(round(dt,4)) 
+  fig2.suptitle(title)
+  
+  E, D = pyTurb.get_stats()
+  
+  energy.append( E )
+  diss.append( D )
+  time.append(t)
+  
+  line1.set_data(time,energy)
+  line2.set_data(time,diss)
+  
+  return line1, line2
+  
+# ~ anim = FuncAnimation(fig, anim_step, interval = 20, frames = frames, blit = False, repeat=False)
+anim2 = FuncAnimation(fig2, anim_step2, interval = 20, frames = frames, blit = False, repeat=False)
 
 plt.show()
 
