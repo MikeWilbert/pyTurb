@@ -6,7 +6,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pyTurb
 
 N = 128
-k_a = 0.5
+k_a = 0.2
 k_f = 10
 c_res = 1.
 eps = 1.
@@ -34,7 +34,7 @@ fig.colorbar(im2, cax=cax, orientation='vertical')
 
 def anim_step(i):
   
-  N_sub = 10
+  N_sub = 8
   for i in range(N_sub):
     pyTurb.step()
   

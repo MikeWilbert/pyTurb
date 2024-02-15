@@ -151,29 +151,38 @@ def calc_force():
     return
   
   # White Noise Forcing
-  force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
+  # ~ force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
   
-  index = ( np.rint(np.sqrt(k2)).astype(int) != k_f  )
-  force_W_F[index] = 0.
+  # ~ index = ( np.rint(np.sqrt(k2)).astype(int) != k_f  )
+  # ~ force_W_F[index] = 0.
   
-  force_W = np.fft.ifft2(force_W_F)
-  force_W = force_W.real
-  force_W_F = np.fft.ifft2(force_W)
+  # ~ force_W = np.fft.ifft2(force_W_F)
+  # ~ force_W = force_W.real
+  # ~ force_W_F = np.fft.ifft2(force_W)
   
-  # strength
-  Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
-  Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
-  force_W_F *= np.sqrt(eps/dt) / force_energy
-  
-  # random-phase Talor-Green
-  # ~ F_R = k_f * np.cos(k_f*x_val + np.random.randn(1)*2.*np.pi) * np.cos(k_f*y_val + np.random.randn(1)*2.*np.pi)
-  # ~ force_W_F = np.fft.fft2(F_R)
-  
+  # ~ # strength
   # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
   # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  # ~ force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
+  # ~ force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
   # ~ force_W_F *= np.sqrt(eps/dt) / force_energy
+  
+  # white noise real space
+        
+  F_R = np.zeros((N,N), dtype=complex)
+  
+  for ix in range(0, N//2+1):
+    for iy in range(0, N//2+1):
+    
+      if( np.rint(np.sqrt(ix**2+iy**2)).astype(int) == k_f): # aufpassen: wenn endliches Band geforced wird, dann mit 1/sqrt(k) skalieren!
+        
+        F_R += np.cos( x_val * ix + np.random.rand()*2.*np.pi ) * np.cos( y_val * iy + np.random.rand()*2.*np.pi )
+  
+  force_W_F = np.fft.fft2(F_R)
+  
+  Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
+  Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
+  force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
+  force_W_F *= np.sqrt(eps/dt) / force_energy
   
 def step():
   global t, dt
