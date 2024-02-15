@@ -112,7 +112,11 @@ def init():
   # ~ W_F = np.fft.fft2(W)
   
   # Taylor-Green
-  W_F = ( np.cos( x_val ) + np.cos( y_val ) ) 
+  nu = 0.001
+  alpha = 0.
+  
+  W   = ( np.cos( x_val ) + np.cos( y_val ) ) 
+  W_F = np.fft.fft2(W)
   
   t = 0
   
@@ -200,10 +204,10 @@ def calc_RHS(Win_F, dt_):
   dealias(RHS_W_F_)
   
   # Forcing  
-  RHS_W_F_ += force_W_F
+  # ~ RHS_W_F_ += force_W_F
   
   # linear fricition
-  RHS_W_F_ -= alpha*Win_F
+  # ~ RHS_W_F_ -= alpha*Win_F
   
   # analytische Diffusion
   RHS_W_F_ *= np.exp(+nu *k2*dt_)

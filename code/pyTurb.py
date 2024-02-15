@@ -15,7 +15,8 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   c_res = c_res_
   eps   = eps_
   
-  k_max = float(N) / 3.
+  # ~ k_max = float(N) / 3. # 2/3 dealiasing
+  k_max = float(N) * 0.4 # filter delasing
   nu    = c_res**2 * eps**(1./3.) * k_f**(2./3.) * k_max**(-2.)
   k_nu  = k_f**(1./3.) * eps**(1./6.) * nu**(-1./2.)
   alpha = eps**(1./3.) * k_a**(2./3.)
@@ -26,7 +27,6 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   dt = 0.
   t  = 0.
   
-  W         = np.zeros((N,N), dtype=complex)
   W_F       = np.zeros((N,N), dtype=complex)
   force_W   = np.zeros((N,N), dtype=complex)
   force_W_F = np.zeros((N,N), dtype=complex)
@@ -42,22 +42,37 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   k2[0][0] = 0.
   
   setup()
+  print_scales()
   
 def setup():
   
   global W_F, W
   global x_val, y_val
+  global alpha, nu
+  global force_on
+  
+  # Taylor-Green
+  # ~ nu = 0.01
+  # ~ alpha = 0.
+  # ~ force_on = False
+  
+  # ~ W   = ( np.cos( x_val ) + np.cos( y_val ) ) 
+  # ~ W_F = np.fft.fft2(W)
   
   # double shear layer
   # ~ delta = 0.05
   # ~ sigma = 15./np.pi
+  # ~ nu = 0.0001
+  # ~ alpha = 0.
+  # ~ force_on = False
   
   # ~ W                = delta * np.cos(x_val) - sigma * np.cosh(sigma* ( y_val - 0.5*np.pi ) )**(-2.)
   # ~ W[y_val > np.pi] = delta * np.cos(x_val[y_val > np.pi]) + sigma * np.cosh(sigma* ( 1.5*np.pi - y_val[y_val > np.pi] ) )**(-2.)
   # ~ W_F = np.fft.fft2(W)
-  
-  # Taylor-Green
-  W_F = ( np.cos( x_val ) + np.cos( y_val ) ) 
+
+  # zero (self-evolving turbulence)
+  np.zeros((N,N), dtype=complex)
+  force_on = True
 
 def dealias(IN_F):
   global k2, kx, ky
@@ -83,7 +98,7 @@ def calc_RHS(Win_F, dt_):
   global k2_inv, k2
   
   # advection stream function
-  psi_F = Win_F * k2_inv; psi_F[0] = 0.
+  psi_F = Win_F * k2_inv; psi_F[0][0] = 0.
   
   gradW_x_F  , gradW_y_F   = grad(Win_F)
   gradPsi_x_F, gradPsi_y_F = grad(psi_F)
@@ -98,7 +113,7 @@ def calc_RHS(Win_F, dt_):
   gradPsi_x = np.fft.ifft2(gradPsi_x_F)
   gradPsi_y = np.fft.ifft2(gradPsi_y_F)
   
-  RHS_W_ = (gradPsi_x * gradW_y - gradPsi_y * gradW_x) 
+  RHS_W_ = (gradW_x * gradPsi_y - gradW_y * gradPsi_x)
   
   RHS_W_F_ = np.fft.fft2(RHS_W_)
   dealias(RHS_W_F_)
@@ -119,8 +134,8 @@ def calc_dt():
   global kx, ky, k2_inv
   global dx, dt
   
-  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
-  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
+  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0][0] = 0.
+  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0][0] = 0.
   
   Ux = np.fft.ifft2(Ux_F)
   Uy = np.fft.ifft2(Uy_F)
@@ -131,6 +146,9 @@ def calc_force():
   global kx, ky, k2_inv
   global force_W_F
   global k_f, eps
+  
+  if (force_on==False):
+    return
   
   # Alvelius
   dk_f = 0
@@ -150,8 +168,8 @@ def calc_force():
   force_W_F = np.fft.ifft2(force_W)
   
   # strength
-  Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0] = 0.
-  Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0] = 0.
+  Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
+  Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
   force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
   force_W_F *= np.sqrt(eps/dt) / force_energy
   
@@ -159,8 +177,8 @@ def calc_force():
   # ~ F_R = k_f * np.cos(k_f*x_val + np.random.randn(1)*2.*np.pi) * np.cos(k_f*y_val + np.random.randn(1)*2.*np.pi)
   # ~ force_W_F = np.fft.fft2(F_R)
   
-  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0] = 0.
-  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0] = 0.
+  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
+  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
   # ~ force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
   # ~ force_W_F *= np.sqrt(eps/dt) / force_energy
   
@@ -219,3 +237,12 @@ def print_scales():
   print('alpha   =', alpha)
   print('----------------')
   print('')
+
+def get_fields():
+  
+  global W_F
+  
+  W = np.fft.ifft2(W_F).real
+  
+  return W, W_F
+  
