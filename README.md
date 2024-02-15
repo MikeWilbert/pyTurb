@@ -6,6 +6,8 @@ Python Code simulating Navier-Stokes / MHD turbulence on a single GPU using the 
 
 This project aims at creating a tool to experiment with different techiques before implementing them into larger frameworks (e.g. SpecTurb, MuPhy2).
 
+[Forced Navier-Stokes Turbulence](videos/NS_Turbulence_N256_kf12.ogv)
+
 ## Problem
 > $\partial_t \omega = \nabla \omega \times \nabla \psi + \nu \Delta \omega - \alpha \omega$  
 > $\psi = - \Delta^{-1} \omega$  
