@@ -24,7 +24,7 @@ This project aims at creating a tool to experiment with different techiques befo
 - $N$ : Resolution per direction
 - $\epsilon$ : Energy rate put into the system
 - $k_f$ : Forced mode
-- $k_\alpha$ : Smallest mode (integral scale) due to linear forcing >restricting the inverse cascade
+- $k_\alpha$ : Smallest mode (integral scale) due to linear forcing restricting the inverse cascade
 - $c_{res}$ : Ratio of maximum wavenumber due to resolution $k_{max}$ and wavenumber of disspation scale $k_\nu$
 
 ### Derived quantities
