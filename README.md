@@ -8,8 +8,8 @@ This project aims at creating a tool to experiment with different techiques befo
 
 ## Problem
 > $\partial_t \omega = \nabla \omega \times \nabla \psi + \nu \Delta \omega - \alpha \omega$  
-> $\psi = - \Delta^{-1} \omega$ ,
-$\,\,\mathbf{u} = \nabla \times ( \psi \, \mathbf{\hat{e}}_z )$ 
+> $\psi = - \Delta^{-1} \omega$  
+>$\mathbf{u} = \nabla \times ( \psi \, \mathbf{\hat{e}}_z )$ 
 
 - $\omega$ : vorticity
 - $\psi$ : stream function
