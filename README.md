@@ -7,10 +7,12 @@ Python Code simulating Navier-Stokes / MHD turbulence on a single GPU using the 
 This project aims at creating a tool to experiment with different techiques before implementing them into larger frameworks (e.g. SpecTurb, MuPhy2).
 
 ## Problem
-> $\partial_t \omega = \mathbf{u} \cdot \nabla \omega + \nu \Delta \omega - \alpha \omega$  
-> $\mathbf{u} = - \Delta^{-1} [ \nabla \times (\mathbf{\omega \, \hat{e}_z}) ]$
+> $\partial_t \omega = \nabla \omega \times \nabla \psi + \nu \Delta \omega - \alpha \omega$  
+> $\psi = - \Delta^{-1} \omega$ ,
+$\,\,\mathbf{u} = \nabla \times ( \psi \, \mathbf{\hat{e}}_z )$ 
 
 - $\omega$ : vorticity
+- $\psi$ : stream function
 - $\mathbf{u}$ : velocity
 - $\nu$ : viscosity
 - $\alpha$ : linear friction coefficient
