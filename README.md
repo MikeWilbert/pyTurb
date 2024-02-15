@@ -37,7 +37,7 @@ $k_{max} = \frac{2}{5} N$ [Hou&Li-dealiasing]
 $\frac{k_{max}}{k_\nu} = c_{ref} \rightarrow \nu =   c_{ref}^2 k_f^\frac{2}{3} k_{max}^{-2}  \epsilon^\frac{1}{3}$
 
 #### friction force
-$k_\alpha = \epsilon^{-\frac{1}{2}}\,\alpha^{\frac{3}{2}} \rightarrow \alpha = k_\alpha^{\frac{2}{3}} \epsilon^{\frac{1}{3}}$
+$k_\alpha = \epsilon^{-\frac{1}{2}} \alpha^{\frac{3}{2}} \rightarrow \alpha = k_\alpha^{\frac{2}{3}} \epsilon^{\frac{1}{3}}$
 
 For more details on the scales see [Kraichnan (1967)](papers/2D_NS/1967_Kraichnan.pdf) and 
 [Boffetta (2010)](papers/2D_NS/2010_Boffetta.pdf).
