@@ -15,15 +15,13 @@ pyTurb.init(N, k_a, k_f, c_res, eps)
 
 # GRAPHIK
 frames = 100000
-# ~ cm = 'Spectral'
-cm = 'seismic'
 W, W_F = pyTurb.get_fields()
 fig, ((ax1,ax2)) = plt.subplots(1,2) # einzelnes Anzeigefenster
 ax1.set_title(r'$W$')             
 ax2.set_title(r'$\hat{W}$')                                      
-im1 = ax1.pcolormesh(W.real, cmap = cm)                
+im1 = ax1.pcolormesh(W.real, cmap = 'seismic')                
 im1.set_clim(vmin=-2., vmax=2.)
-im2 = ax2.pcolormesh(np.abs(W_F), cmap = cm)                
+im2 = ax2.pcolormesh(np.abs(W_F), cmap = 'gray')                
 im2.set_clim(vmin=-3., vmax=3.)
 ax1.invert_yaxis()
 ax2.invert_yaxis()

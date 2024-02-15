@@ -18,7 +18,7 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   # ~ k_max = float(N) / 3. # 2/3 dealiasing
   k_max = float(N) * 0.4 # filter delasing
   nu    = c_res**2 * eps**(1./3.) * k_f**(2./3.) * k_max**(-2.)
-  k_nu  = k_f**(1./3.) * eps**(1./6.) * nu**(-1./2.)
+  k_nu  = k_max / c_res
   alpha = eps**(1./3.) * k_a**(2./3.)
   
   L  = 2.*np.pi
@@ -150,17 +150,10 @@ def calc_force():
   if (force_on==False):
     return
   
-  # Alvelius
-  dk_f = 0
-  k_l = k_f - dk_f
-  k_r = k_f + dk_f
+  # White Noise Forcing
+  force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
   
-  index = ( ( np.rint(np.sqrt(k2)).astype(int) < k_l ) | ( np.rint(np.sqrt(k2)).astype(int) > k_r ) )
-  
-  # form
-  F = 1.
-  
-  force_W_F = np.sqrt( F * np.sqrt(k2_inv) ) * np.exp( 2.j*np.pi * np.random.randn(N,N) )
+  index = ( np.rint(np.sqrt(k2)).astype(int) != k_f  )
   force_W_F[index] = 0.
   
   force_W = np.fft.ifft2(force_W_F)
