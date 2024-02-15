@@ -147,13 +147,15 @@ def calc_force():
   global force_W_F
   global k_f, eps
   
+  dk_f = 0.5
+  
   if (force_on==False):
     return
   
-  # White Noise Forcing
+  # Fourier Space
   # ~ force_W_F = np.random.randn(N,N) + 1.j * np.random.randn(N,N)
   
-  # ~ index = ( np.rint(np.sqrt(k2)).astype(int) != k_f  )
+  # ~ index = ( ( k2 > (k_f+dk_f)**2 ) | ( k2 < (k_f-dk_f)**2 )  )
   # ~ force_W_F[index] = 0.
   
   # ~ force_W = np.fft.ifft2(force_W_F)
@@ -166,19 +168,20 @@ def calc_force():
   # ~ force_energy = np.sqrt( 0.5*np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )
   # ~ force_W_F *= np.sqrt(eps/dt) / force_energy
   
-  # white noise real space
-        
+  # Real Space
   F_R = np.zeros((N,N), dtype=complex)
   
   for ix in range(0, N//2+1):
     for iy in range(0, N//2+1):
     
-      if( np.rint(np.sqrt(ix**2+iy**2)).astype(int) == k_f): # aufpassen: wenn endliches Band geforced wird, dann mit 1/sqrt(k) skalieren!
+      i2 = ix**2+iy**2
+      if( ( i2 <= (k_f+dk_f)**2 ) & ( i2 >= (k_f-dk_f)**2 ) ):
         
-        F_R += np.cos( x_val * ix + np.random.rand()*2.*np.pi ) * np.cos( y_val * iy + np.random.rand()*2.*np.pi )
+        F_R += i2**(-0.25) * np.cos( x_val * ix + np.random.rand()*2.*np.pi ) * np.cos( y_val * iy + np.random.rand()*2.*np.pi )
   
   force_W_F = np.fft.fft2(F_R)
   
+  # strength
   Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
   Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
   force_energy = np.sqrt( 0.5* np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 )

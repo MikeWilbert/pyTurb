@@ -7,11 +7,15 @@ import pyTurb
 
 N = 128
 k_a = 0.2
-k_f = 10
+k_f = 12
 c_res = 1.
 eps = 1.
 
 pyTurb.init(N, k_a, k_f, c_res, eps)
+
+# ~ pyTurb.calc_force()
+
+# ~ exit()
 
 # GRAPHIK
 frames = 100000
