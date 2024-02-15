@@ -1,4 +1,6 @@
 import numpy as np
+import cupy
+from pyevtk.hl import imageToVTK 
 
 def init(N_, k_a_, k_f_, c_res_, eps_):
   
@@ -264,4 +266,9 @@ def get_stats():
   
   return energy, dissipation
   
+def print_vtk(file_name):
   
+  W = np.fft.ifft2(W_F)
+  W_out =  W.reshape((N,N,1), order = 'C').real.copy()
+  
+  imageToVTK(file_name, cellData = {'W' : W_out}, pointData = {} )
