@@ -3,7 +3,7 @@
 Python code simulating Navier-Stokes / MHD turbulence on a single GPU using the pseudo-spectral method.
 
 <p align="center" width="100%">
-<img src="images/NS_Turbulence_N256_kf12.png" align="center" height="350" width="350"/>
+<img src="images/NS_Turbulence_N1024_kf5.png" align="center" height="400" width="400"/>
 </p>
 
 ## Project Description
