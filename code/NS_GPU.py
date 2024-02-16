@@ -1,20 +1,20 @@
 import pyTurb
 import time as clock
 
-N = 256
-k_a = 0.5
+N = 1024
+k_a = 0.05
 k_f = 5
 c_res = 1.5
 eps = 1.
 
 t_end = 30.
-t_print = 0.1
+t_print = 0.5
 
 t = 0.
 t_out = 0.
 out_num = 0
 
-out_dir = "./../output/spectrum"
+out_dir = "/home/fs1/mw/Turbulence/2D_Turbulence"
 
 pyTurb.init(N, k_a, k_f, c_res, eps)
 
@@ -29,7 +29,7 @@ while(t < t_end):
   t_out += dt
   print('time =', t, end='\r')
   
-  pyTurb.print_stats()
+  # ~ pyTurb.print_stats()
   
   if(t_out>t_print):
     
@@ -37,7 +37,7 @@ while(t < t_end):
     out_num += 1
     
     pyTurb.print_vtk(file_name)
-    pyTurb.print_spectrum()
+    # ~ pyTurb.print_spectrum()
     t_out -= t_print
     
 duration = clock.time() - start_time
