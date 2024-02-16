@@ -7,14 +7,14 @@ k_f = 12
 c_res = 1.
 eps = 1.
 
-t_end = 20.
+t_end = 10.
 t_print = 0.1
 
 t = 0.
 t_out = 0.
 out_num = 0
 
-out_dir = "./../output"
+out_dir = "./../output/shear_layer"
 
 pyTurb.init(N, k_a, k_f, c_res, eps)
 

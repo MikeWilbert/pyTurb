@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as ps
 import cupy
+import scipy.stats as stats
 from pyevtk.hl import imageToVTK 
 
 def init(N_, k_a_, k_f_, c_res_, eps_):
@@ -263,9 +264,27 @@ def get_stats():
   Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
   
   energy = 0.5 * np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 # N**2 wegen Parsevalls Theorem und N**2 wegen Mittelwert 
-  dissipation = np.sum( nu*np.abs(W_F)**2) / N**4
+  dissipation = nu * np.sum( np.abs(W_F)**2) / N**4
   
   return energy, dissipation
+  
+# inspired by https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
+def get_spectrum():
+  global W_F
+  
+  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
+  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
+  
+  k = np.sqrt(k2).flatten()
+  E = 0.5 * (np.abs(Ux_F)**2 + np.abs(Uy_F)**2).flatten()
+  
+  kbins = np.arange(0.5, N//2+1, 1.)
+  kvals = 0.5 * (kbins[1:] + kbins[:-1])
+  
+  Abins, _, _ = stats.binned_statistic(k, E, statistic = "mean", bins = kbins)
+  Abins *= np.pi * (kbins[1:]**2 - kbins[:-1]**2)
+  
+  return kvals, Abins
   
 def print_vtk(file_name):
   
