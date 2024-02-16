@@ -2,7 +2,7 @@ import pyTurb
 import time as clock
 
 N = 256
-k_a = 1.
+k_a = 0.2
 k_f = 12
 c_res = 1.
 eps = 1.
@@ -14,7 +14,7 @@ t = 0.
 t_out = 0.
 out_num = 0
 
-out_dir = "./output"
+out_dir = "./../output"
 
 pyTurb.init(N, k_a, k_f, c_res, eps)
 
