@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as ps
+import pandas as pd
 import cupy
 import scipy.stats as stats
 from pyevtk.hl import imageToVTK 
@@ -47,6 +47,7 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   
   setup()
   print_scales()
+  print_spectrum_init()
   
 def setup():
   
@@ -285,6 +286,33 @@ def get_spectrum():
   Abins *= np.pi * (kbins[1:]**2 - kbins[:-1]**2)
   
   return kvals, Abins
+  
+def print_spectrum_init():
+  
+  file_name = "/home/mike/Documents/pyturb_2d/output/spectrum/spectra.csv"
+  
+  kvals, _ = get_spectrum()
+  
+  df = pd.DataFrame(kvals.reshape(1,kvals.size) )
+  df.to_csv(file_name, header=False, index=False, mode='w')
+  
+def print_spectrum():
+  
+  file_name = "/home/mike/Documents/pyturb_2d/output/spectrum/spectra.csv"
+  
+  _, spectrum = get_spectrum()
+  
+  df = pd.DataFrame(spectrum.reshape(1,spectrum.size) )
+  df.to_csv(file_name, header=False, index=False, mode='a')
+  
+def print_stats():
+  
+  file_name = "/home/mike/Documents/pyturb_2d/output/spectrum/stats.csv"
+  
+  E,D = get_stats()
+  
+  df = pd.DataFrame( np.array([t,E,D]).reshape(1,3) )
+  df.to_csv(file_name, header=False, index=False, mode='a')
   
 def print_vtk(file_name):
   
