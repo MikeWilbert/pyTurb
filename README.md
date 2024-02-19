@@ -3,7 +3,9 @@
 Python code simulating Navier-Stokes / MHD turbulence on a single GPU using the pseudo-spectral method.
 
 <p align="center" width="100%">
-<img src="images/NS_Turbulence_N1024_kf5.png" align="center" height="350" width="350"/>
+    <img width="44%" src="images/Vorticity_Boffetta2010.png">
+    <img width="44%" src="images/Spectrum_Boffetta2010.png"> 
+    </br> Resolution of 2048³. Left: Vorticity, Right: Energy Spectrum </br> Compare with Boffetta (2010), run A
 </p>
 
 ## Project Description
