@@ -1,23 +1,27 @@
 import numpy as np
 import cupy as cp
 import pandas as pd
+import os
+import shutil
 import scipy.stats as stats
 from pyevtk.hl import imageToVTK 
 
-def init(N_, k_a_, k_f_, c_res_, eps_):
+def init(N_, k_a_, k_f_, c_res_, eps_, out_dir_):
   
-  global N, k_a, k_f, c_res, eps
+  global N, k_a, k_f, c_res, eps, out_dir
   global k_max, nu, k_nu, alpha
   global L, dx, dk, dt, t
   global W, W_F, force_W, force_W_F
   global x_val, y_val
   global kx, ky, k2, k2_inv
+  global out_num
   
-  N     = N_
-  k_a   = k_a_
-  k_f   = k_f_
-  c_res = c_res_
-  eps   = eps_
+  N       = N_
+  k_a     = k_a_
+  k_f     = k_f_
+  c_res   = c_res_
+  eps     = eps_
+  out_dir = out_dir_
   
   # ~ k_max = float(N) / 3. # 2/3 dealiasing
   k_max = float(N) * 0.4 # filter delasing
@@ -45,9 +49,11 @@ def init(N_, k_a_, k_f_, c_res_, eps_):
   k2_inv = 1./k2
   k2[0][0] = 0.
   
+  out_num = 0
+  
   setup()
   print_scales()
-  # ~ print_spectrum_init()
+  init_output()
   
 def setup():
   
@@ -247,73 +253,91 @@ def print_scales():
   print('----------------')
   print('')
 
-# ~ def get_fields():
+def get_fields():
   
-  # ~ global W_F
+  global W_F
   
-  # ~ W = np.fft.ifft2(W_F).real
+  W = np.fft.ifft2(W_F).real
   
-  # ~ return W, W_F
+  W_gpu = cp.fft.ifft2(W_F).real
+  W = cp.asnumpy(W_gpu)
   
-# ~ def get_stats():
-  # ~ global W_F
-  # ~ global kx, ky, k2_inv
-  # ~ global nu
+  return W, W_F
   
-  # ~ Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
-  # ~ Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
+def get_stats():
+  global W_F
+  global kx, ky, k2_inv
+  global nu
   
-  # ~ energy = 0.5 * np.sum( np.abs(Ux_F)**2 + np.abs(Uy_F)**2 ) / N**4 # N**2 wegen Parsevalls Theorem und N**2 wegen Mittelwert 
-  # ~ dissipation = nu * np.sum( np.abs(W_F)**2) / N**4
+  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
+  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
   
-  # ~ return energy, dissipation
+  energy_gpu = 0.5 * cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 # N**2 wegen Parsevalls Theorem und N**2 wegen Mittelwert 
+  dissipation_gpu = nu * cp.sum( cp.abs(W_F)**2) / N**4
   
-# ~ # inspired by https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
-# ~ def get_spectrum():
-  # ~ global W_F
+  energy = energy_gpu.get()
+  dissipation = dissipation_gpu.get()
   
-  # ~ Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
-  # ~ Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
+  return energy, dissipation
   
-  # ~ k = np.sqrt(k2).flatten()
-  # ~ E = 0.5 * (np.abs(Ux_F)**2 + np.abs(Uy_F)**2).flatten()
+def print_stats():
   
-  # ~ kbins = np.arange(0.5, N//2+1, 1.)
-  # ~ kvals = 0.5 * (kbins[1:] + kbins[:-1])
+  file_name = out_dir + '/stats.csv'
   
-  # ~ Abins, _, _ = stats.binned_statistic(k, E, statistic = "mean", bins = kbins)
-  # ~ Abins *= np.pi * (kbins[1:]**2 - kbins[:-1]**2)
+  E,D = get_stats()
   
-  # ~ return kvals, Abins
+  df = pd.DataFrame( np.array([t.get(),E,D]).reshape(1,3) )
+  df.to_csv(file_name, header=False, index=False, mode='a')
   
-# ~ def print_spectrum_init():
+# inspired by https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
+def get_spectrum():
+  global W_F
   
-  # ~ file_name = "/home/fs1/mw/Turbulence/2D_Turbulence/spectra.csv"
+  Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
+  Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
   
-  # ~ kvals, _ = get_spectrum()
+  k = cp.sqrt(k2).flatten().get()
+  E = 0.5 * (cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2).flatten().get()
   
-  # ~ df = pd.DataFrame(kvals.reshape(1,kvals.size) )
-  # ~ df.to_csv(file_name, header=False, index=False, mode='w')
+  kbins = np.arange(0.5, N//2+1, 1.)
+  kvals = 0.5 * (kbins[1:] + kbins[:-1])
   
-# ~ def print_spectrum():
+  Abins, _, _ = stats.binned_statistic(k, E, statistic = "mean", bins = kbins)
+  Abins *= np.pi * (kbins[1:]**2 - kbins[:-1]**2)
   
-  # ~ file_name = "/home/fs1/mw/Turbulence/2D_Turbulence/spectra.csv"
+  return kvals, Abins
   
-  # ~ _, spectrum = get_spectrum()
+def init_output():
   
-  # ~ df = pd.DataFrame(spectrum.reshape(1,spectrum.size) )
-  # ~ df.to_csv(file_name, header=False, index=False, mode='a')
+  global out_dir
   
-# ~ def print_stats():
+  # create or clear output directory
+  if os.path.exists(out_dir):
+    shutil.rmtree(out_dir)
+  os.makedirs(out_dir)
   
-  # ~ file_name = "/home/fs1/mw/Turbulence/2D_Turbulence/stats.csv"
+  file_name = out_dir + '/spectra.csv'
   
-  # ~ E,D = get_stats()
+  kvals, _ = get_spectrum()
   
-  # ~ df = pd.DataFrame( np.array([t,E,D]).reshape(1,3) )
-  # ~ df.to_csv(file_name, header=False, index=False, mode='a')
+  df = pd.DataFrame(kvals.reshape(1,kvals.size) )
+  df.to_csv(file_name, header=False, index=False, mode='w')
   
-def print_vtk(file_name):
+def print_spectrum():
+  
+  file_name = out_dir + '/spectra.csv'
+  
+  _, spectrum = get_spectrum()
+  
+  df = pd.DataFrame(spectrum.reshape(1,spectrum.size) )
+  df.to_csv(file_name, header=False, index=False, mode='a')
+  
+def print_vtk():
+  
+  global out_dir, out_num
+  
+  file_name = out_dir + '/step_' + str(out_num)
+  out_num += 1
   
   W = cp.fft.ifft2(W_F)
   W_cpu = cp.asnumpy(W)
