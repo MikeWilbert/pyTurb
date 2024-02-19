@@ -20,7 +20,8 @@ fig, ax = plt.subplots()
 ax.set_title('Energy Spectrum') 
 
 # ~ ax.loglog( k_low  , 10**(11)*k_low**(-5/3) , c='k', label=r'$k^{5/3}$', ls='--')
-ax.loglog( k_high , 10**(14.5)*k_high**(-3.) , c='k', label=r'$k^{-3}$')
+# ~ ax.loglog( k_high , 10**(13)*k_high**(-3.) , c='k', label=r'$k^{-3}$')
+ax.loglog( k_high , 10**(17)*k_high**(-3.*2) , c='k', label=r'$k^{-3}$')
 # ~ ax.loglog( k_high , 10**(12)*k_high**(-3.5) , c='k', label=r'$k^{-3}$')
 ax.loglog(k, E[-1], label=r'$E(k)$', c='tab:orange')
 
