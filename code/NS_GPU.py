@@ -1,14 +1,14 @@
 import pyTurb
 import time as clock
 
-N = 1024
-k_a = 0.5
-k_f = 10
-c_res = 3.
+N = 2048
+k_a = 0.0019
+k_f = 34
+c_res = 1.5
 eps = 1.
 
-t_end = 30.
-t_print = 0.2
+t_end = 40.
+t_print = 0.5
 
 t = 0.
 t_out = 0.

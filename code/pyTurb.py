@@ -82,7 +82,7 @@ def setup():
   # ~ W[y_val > cp.pi] = delta * cp.cos(x_val[y_val > cp.pi]) + sigma * cp.cosh(sigma* ( 1.5*cp.pi - y_val[y_val > cp.pi] ) )**(-2.)
   # ~ W_F = cp.fft.fft2(W)
 
-  # zero (self-evolving turbulence)
+  # self-evolving turbulence
   force_on = True
 
 def dealias(IN_F):
@@ -113,7 +113,7 @@ def calc_dt():
   Ux = cp.fft.ifft2(Ux_F)
   Uy = cp.fft.ifft2(Uy_F)
   
-  dt = cp.sqrt(2) / ( cp.pi * cp.amax( (1.+cp.abs(Ux)/dx) + (1.+cp.abs(Uy)/dx) ) )
+  dt = cp.sqrt(3) / ( cp.pi * cp.amax( (1.+cp.abs(Ux)/dx) + (1.+cp.abs(Uy)/dx) ) )
   
 def calc_force():
   global kx, ky, k2_inv
@@ -213,21 +213,21 @@ def step():
   # ~ W_F = (W_F + dt * RHS1_W) * cp.exp(-nu *k2*dt)
   
   # Heun (2. Ordnung)
-  RHS1_U = calc_RHS(W_F)
-  W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
-  
-  RHS2_U = calc_RHS(W_1)
-  W_F = (W_F + 0.5*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 0.5*dt*RHS2_U
-  
-  # SSPRK3 (3. Ordnung)
   # ~ RHS1_U = calc_RHS(W_F)
   # ~ W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
   
   # ~ RHS2_U = calc_RHS(W_1)
-  # ~ W_2 = (W_F + 0.25*dt*RHS1_U) * cp.exp(-0.5*nu*k2*dt) + 0.25*dt*RHS2_U * cp.exp(+0.5*nu*k2*dt)
+  # ~ W_F = (W_F + 0.5*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 0.5*dt*RHS2_U
   
-  # ~ RHS3_U = calc_RHS(W_2)
-  # ~ W_F = (W_F + 1./6.*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 1./6.*dt*RHS2_U + 2./3.*dt*RHS3_U * cp.exp(-0.5*nu*k2*dt)
+  # SSPRK3 (3. Ordnung)
+  RHS1_U = calc_RHS(W_F)
+  W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
+  
+  RHS2_U = calc_RHS(W_1)
+  W_2 = (W_F + 0.25*dt*RHS1_U) * cp.exp(-0.5*nu*k2*dt) + 0.25*dt*RHS2_U * cp.exp(+0.5*nu*k2*dt)
+  
+  RHS3_U = calc_RHS(W_2)
+  W_F = (W_F + 1./6.*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 1./6.*dt*RHS2_U + 2./3.*dt*RHS3_U * cp.exp(-0.5*nu*k2*dt)
   
   t += dt
   

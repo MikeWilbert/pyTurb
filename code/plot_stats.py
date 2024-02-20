@@ -22,4 +22,11 @@ ax2.plot(t, D, label=r'$Dissipation$', c='tab:green')
 ax1.grid()
 ax2.grid()
 
+ax1.set_xlabel('t')
+ax1.set_ylabel('Energy')
+ax2.set_xlabel('t')
+ax2.set_ylabel('viscous Dissipation')
+
+fig.tight_layout()
+
 plt.show()
