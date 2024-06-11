@@ -19,8 +19,8 @@ k_high = k[k > k_f]
 fig, ax = plt.subplots()
 ax.set_title('Energy Spectrum') 
 
-ax.loglog( k_low  , 10**(14.5)*k_low**(-5/3) , c='k', label=r'$k^{-5/3}$', ls='--')
-ax.loglog( k_high , 10**(17.5)*k_high**(-3.-0.7) , c='k', label=r'$k^{-(3+0.7)}$')
+# ~ ax.loglog( k_low  , 10**(14.5)*k_low**(-5/3) , c='k', label=r'$k^{-5/3}$', ls='--')
+# ~ ax.loglog( k_high , 10**(17.5)*k_high**(-3.-0.7) , c='k', label=r'$k^{-(3+0.7)}$')
 ax.loglog(k, E[-1], label=r'$E(k)$', c='tab:orange')
 
 # ~ for i in range(10,E.shape[0]):

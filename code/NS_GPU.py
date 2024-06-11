@@ -1,9 +1,9 @@
 import pyTurb
 import time as clock
 
-N = 2048
-k_a = 0.0019
-k_f = 34
+N = 1024
+k_a = 0.2
+k_f = 14
 c_res = 1.5
 eps = 1.
 
@@ -18,6 +18,10 @@ num_stats = 10
 out_dir = "/home/fs1/mw/Turbulence/2D_Turbulence/test"
 
 pyTurb.init(N, k_a, k_f, c_res, eps, out_dir)
+
+# pyTurb.calc_force()
+# pyTurb.print_spectrum()
+# exit()
 
 pyTurb.print_vtk()
 start_time = clock.time()
