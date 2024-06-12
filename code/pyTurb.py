@@ -24,13 +24,14 @@ def init(N_, k_a_, k_f_, c_res_, eps_, out_dir_):
   out_dir = out_dir_
   
   k_max = float(N) / 3. # 2/3 dealiasing
+  # ~ k_max = float(N) * 0.4 # filter delasing
   nu    = c_res**2 * eps**(1./3.) * k_f**(2./3.) * k_max**(-2.)
   k_nu  = k_max / c_res
   alpha = eps**(1./3.) * k_a**(2./3.)
   
   L  = 2.*np.pi
   dx = L/N
-  dk = 10.
+  dk = 1.
   dt = 0.
   t  = 0.
   
@@ -61,26 +62,27 @@ def setup():
   global alpha, nu
   global force_on
   
-  ''' Taylor-Green '''
-  # nu = 0.5
-  # alpha = 0.
-  # force_on = False
+  # Taylor-Green
+  # ~ nu = 0.5
+  # ~ alpha = 0.
+  # ~ force_on = False
   
-  # W   = ( cp.cos( x_val ) + cp.cos( y_val ) ) 
-  # W_F = cp.fft.fft2(W)
+  # ~ W   = ( cp.cos( x_val ) + cp.cos( y_val ) ) 
+  # ~ W_F = cp.fft.fft2(W)
   
-  ''' double shear layer '''
-  # delta = 0.05
-  # sigma = 15./np.pi
-  # nu = 0.0001
-  # alpha = 0.
-  # force_on = False
+  # double shear layer
+  # ~ delta = 0.05
+  # ~ sigma = 15./np.pi
+  # ~ nu = 0.0001
+  # ~ alpha = 0.
+  # ~ force_on = False
+  # ~ # force_on = True
   
   # ~ W                = delta * cp.cos(x_val) - sigma * cp.cosh(sigma* ( y_val - 0.5*cp.pi ) )**(-2.)
   # ~ W[y_val > cp.pi] = delta * cp.cos(x_val[y_val > cp.pi]) + sigma * cp.cosh(sigma* ( 1.5*cp.pi - y_val[y_val > cp.pi] ) )**(-2.)
   # ~ W_F = cp.fft.fft2(W)
 
-  ''' self-evolving turbulence '''
+  # self-evolving turbulence
   force_on = True
 
 def dealias(IN_F):
@@ -90,6 +92,10 @@ def dealias(IN_F):
   # 2/3
   IN_F[cp.abs(kx) > float(N)/3.] = 0.
   IN_F[cp.abs(ky) > float(N)/3.] = 0.
+  
+  # Filter
+  # ~ exp_filter = cp.exp( -36. * (cp.abs(kx)/(0.5*N))**36 ) * cp.exp( -36. * (cp.abs(ky)/(0.5*N))**36 )
+  # ~ IN_F *= exp_filter
 
 def grad(IN):
   global kx, ky
@@ -114,7 +120,7 @@ def calc_force():
   global force_W_F
   global k_f, eps
   
-  dk_f = 1
+  dk_f = 0.5
   
   if (force_on==False):
     return
@@ -132,8 +138,30 @@ def calc_force():
   # strength
   Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
   Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  force_energy = 0.5*cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4
-  force_W_F *= cp.sqrt( eps/dt / force_energy )
+  force_energy = cp.sqrt( 0.5*cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 )
+  force_W_F *= cp.sqrt(eps/dt) / force_energy
+  
+  # Real Space
+  
+  # ~ # with for loop
+  # ~ F_R = cp.zeros((N,N), dtype=complex)
+  # ~ for ix in range(0, N//2+1):
+    # ~ for iy in range(0, N//2+1):
+    
+      # ~ i2 = ix**2+iy**2
+      # ~ if( ( i2 <= (k_f+dk_f)**2 ) & ( i2 >= (k_f-dk_f)**2 ) ):
+        
+        #F_R += i2**(-0.25) * cp.cos( x_val * ix + cp.random.rand()*2.*cp.pi ) * cp.cos( y_val * iy + cp.random.rand()*2.*cp.pi )
+        # ~ F_R += i2**(-0.25) * cp.cos( x_val * ix + y_val * iy + cp.random.rand()*2.*cp.pi )
+  
+  # ~ F_R = F_R.real
+  # ~ force_W_F = cp.fft.fft2(F_R)
+  
+  # ~ # strength
+  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
+  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
+  # ~ force_energy = cp.sqrt( 0.5* cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 )
+  # ~ force_W_F *= cp.sqrt(eps/dt) / force_energy
   
 def calc_RHS(Win_F):
   
@@ -180,7 +208,18 @@ def step():
   
   calc_force()
   
-  # SSPRK3 (3. order)
+  # Euler (1. Ordnung)
+  # ~ RHS1_W = calc_RHS(W_F)
+  # ~ W_F = (W_F + dt * RHS1_W) * cp.exp(-nu *k2*dt)
+  
+  # Heun (2. Ordnung)
+  # ~ RHS1_U = calc_RHS(W_F)
+  # ~ W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
+  
+  # ~ RHS2_U = calc_RHS(W_1)
+  # ~ W_F = (W_F + 0.5*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 0.5*dt*RHS2_U
+  
+  # SSPRK3 (3. Ordnung)
   RHS1_U = calc_RHS(W_F)
   W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
   
@@ -191,8 +230,6 @@ def step():
   W_F = (W_F + 1./6.*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 1./6.*dt*RHS2_U + 2./3.*dt*RHS3_U * cp.exp(-0.5*nu*k2*dt)
   
   t += dt
-
-''' output functions '''
   
 def print_scales():
   
@@ -252,14 +289,13 @@ def print_stats():
   
 # inspired by https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
 def get_spectrum():
-  global W_F, force_W_F
+  global W_F
   
   Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
   Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
   
   k = cp.sqrt(k2).flatten().get()
-  # ~ E = 0.5 * (cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2).flatten().get()
-  E = 0.5 * (cp.abs(force_W_F)**2).flatten().get()
+  E = 0.5 * (cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2).flatten().get()
   
   kbins = np.arange(0.5, N//2+1, 1.)
   kvals = 0.5 * (kbins[1:] + kbins[:-1])
