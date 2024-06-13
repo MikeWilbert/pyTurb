@@ -164,6 +164,58 @@ $$k_\nu = \eta^{1/6} \nu^{-1/2}.$$
 By assuming the relation between the dissipation rate of energy $\epsilon$ and the entsrophy dissipation rate $\eta$
 $$\eta \approx k_f^2 \, \epsilon,$$
 which makes sense, when we look at the definition of those two quantities by their relation to the enrgy spectrum, we find an expresion for the viscosity $\nu$ as a function of the forcing wavenumber $k_f$ and the dissipation scale $k_\nu$.
-$$\boxed{\nu = \epsilon^{1/3} k_f^{2/3} k_\nu^{-2}}$$
+$$\begin{equation}
+  \boxed{\nu = \epsilon^{1/3} k_f^{2/3} k_\nu^{-2}}
+\end{equation}$$
 
-In summary, we can provide the three relevant scales $k_\alpha$,  $k_f$ and $k_\nu$ and use the above relations to scale the forces in such a way that (...)
+In summary, we can provide the three relevant scales $k_\alpha$,  $k_f$ and $k_\nu$ and use the above relations to scale the forces in such a way that the evolving turbulence is restricted to this finite range of scales.
+
+## Numerical methods
+
+In this section we will consider the numerical methods used in *pyTurb_2D* to solve equations (5) & (6).  
+The basis is the pseudo-spectral approach, that is very suitable for problems on periodic domains with infititely smooths solutions.
+
+### Psuedo-spectral method
+
+The main trick of the Fourier pseudo-spectral method is to exploit the fact that derivatives in physical space become multiplications with the wavevector in Fourier space.  
+This can be easily shown for the one-dimensional case.
+The basic idea of the Fourier transform is that every complex and integrable function $f(x)$ can be described by a superposition of plane waves, i.e.
+$$ f(x) = \int \hat{f}(k) \, \exp(i\,k\,x) \, \text{d}k =: \mathcal{F}^{-1}(\hat{f})(x).$$  
+$\mathcal{F}^{-1}$ is known as the *inverse Fourier transform*.
+Here, the complex amplitude $\hat{f}$, which includes the amplitude and phase of the corresponding plane wave, is called the *Fourier coefficient* of $f$.  
+Since the Fourier basis, i.e. the set consisting of the functions $\exp(i\,k\,x)$ for all real $k$, is orthonogonal, the Fourier transform can be expressed as 
+$$ \hat{f}(k) = \frac{1}{2\,\pi} \int f(x) \, \exp(-i\,k\,x) \, \text{d}x =: \mathcal{F}(f)(k).$$
+$\mathcal{F}$ is then called the *Fourier transform*.  
+
+Now consider the derivative of a function. Then we find
+$$ f'(x) = \frac{\text{d}}{\text{d}x} \int \hat{f}(k) \, \exp(i\,k\,x) \, \text{d}k = \int i\,k\, \hat{f}(k) \, \exp(i\,k\,x) \, \text{d}k = \mathcal{F}^{-1}(i\,k\,\hat{f}(k)) = \mathcal{F}^{-1}(i\,k\,\mathcal{F(f)(k)}) $$
+Thus, to take the derivative of f, we can transform to Fourtier space, multiply with $i\,k$ and then transform back to physical space. This procedure can easily be extended to vector valued functions:
+
+$$\begin{align*}
+  \mathcal{F}(\nabla \phi(\mathbf{x})) &= i \mathbf{k} \hat{\phi}(k)\\
+  \mathcal{F}(\nabla \cdot \mathbf{u}(\mathbf{x})) &= i \mathbf{k} \cdot \hat{\mathbf{u}}(k)\\
+  \mathcal{F}(\nabla \times \mathbf{u}(\mathbf{x})) &= i \mathbf{k} \times \hat{\mathbf{u}}(k)\\
+  \mathcal{F}(\Delta \mathbf{u}(\mathbf{x})) &= - |\mathbf{k}|^2 \hat{\mathbf{u}}(k)
+\end{align*}$$
+
+Note also, that in Fourier space the Poisson equation can be solved quiet easily as the Laplace operator $\Delta$ can be simply inversed by dividing by $-|{k}|^2$.
+
+Since we want to solve equations (5) & (6) on a computer, we are restricted to a finite number spacial samples of $f$ and thus we will deal with a finite number of Fourier modes. This leads from the Fourier integral to the discrete Fourier transform (*DFT*).
+
+Let's consider the finite space interval $L = [0, 2\pi)$ and discretize it by $N$ points in space $x_j$ that are an equal distance $\Delta x = L/N$ apart. By now evalutating $f$ at these discrete points $f_j = f(x_j)$, with $x_j = j \, \Delta x, j = 0, \dots, N-1$, we define the discrete Fourier transform and its inverse as
+$$DFT(f_j) := \sum_{j=0}^{N-1} f_j\,\exp(-i\,k\,x) =: \hat{f}_k $$
+$$DFT^{-1}(\hat{f}_k) := \frac{1}{N} \sum_{k=-N/2}^{N/2-1} \hat{f}_k\,\exp(i\,k\,x) = f_j$$
+
+The *DFT* assumes that the function $f$ can be described by a finite number of plane waves, which are infinetly smooths, periodic functions. Therefore, also $f$ needs to be periodic and infintely smooth. If that assumption is not fullfilled, it will show in the form of unphysical oscillations or a refelction of unresolvable modes into the spectrum.
+
+The naive computation of the *DFT* gives a number of operations of the order $\mathcal{O}(N^2)$ (every $j$ with every $k$). This will become very expensive in terms of computation time if we want to compute high resolutions in multiple dimensions. 
+This unconvencience is overcome by an algorithms called the *Fast Fourier Transform* (*[FFT](10.1090/S0025-5718-1965-0178586-1)*), which achieves a number of operations of $\mathcal{O}(N\,\log N)$, i.e. nearly optimal, by utilizing a divide-and-conquer approach based on the periodicty of the Fourier base.  
+
+The pseudo-spectral method so far can be summarized as to compute the right-hand-side of equation (6) in discrete equidistant points by transforming the initial data to Fourier space using the FFT and compute the derivatives by multiplications with the wavevector. If the r.h.s. is evaluated this leaves us with an ordinary differential equation in time, for that a great variety of numerical methods exists. Also the stream function can easiy be computed in Fourier space by inverting the Laplace operator.  
+The only thing we have not considered yet is the non-linear term. In our case it consists of the multiplication of two gradients. Unfortunately multiplications in Fourier space become convultions in physical space. In discrete space, this is again an operation of order $\mathcal{O}(N^2)$. This can be avoided by first calculating the derivatives in Fourier space, then transforming to physical space and perform the multiplications there. Since we use the FFT for the transformations, we are back at $\mathcal{O}(N \log N)$.  
+The main idea of the pseudo-spectral method can be summarized as follows:  
+Compute derivatives in Fourier space, calculate multiplications in real space and transform between those two views by the efficient FFT.
+
+### Dealiasing
+
+(...)
