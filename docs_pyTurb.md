@@ -218,4 +218,33 @@ Compute derivatives in Fourier space, calculate multiplications in real space an
 
 ### Dealiasing
 
+Another issue associated with the multiplication in real space is that we need to double the number of Fourier modes to properly represent the result.
+$$\begin{align*}
+  f_j \, g_j &= \left( \sum_{k=-N/2}^{N/2-1} \hat{f}_k \exp( i\,x_j \, k ) \right) \, \left( \sum_{m=-N/2}^{N/2-1} \hat{g}_m \exp( i\,x_j \, m ) \right) \\
+  &= \sum_{k,m=-N/2}^{N/2-1} \hat{f}_k \hat{g}_m \exp( i\,x_j \, (k+m) ) \\
+\end{align*} 
+$$
+Thus, the resulting interval of discrete wavenumbers will be $[-2 N/2, 2 (N/2-1)]$. But we will surely not double the spatial resultion after every multiplication. Keeping the resultion fixed to the wavenumbers $[-N/2, N/2-1]$ then results in the unresolved wavenumbers being refected back into the other side of the resolvable spectrum, producing erroneous results. This can be seen by the following consideration.
+$$ \begin{align*}
+  
+ \exp( i\, x_j\, k ) &= \exp( i\, 2\pi (j\,k) / N) \cdot 1 = \exp( i\, 2\pi j\,k / N) \cdot \exp( \pm i\, 2\pi \,  j ) = \exp( i\, 2\pi (j\, (k \pm N) / N) \\
+ &= \exp( i\, x_j\, ( k \pm N ) )
+ \end{align*}$$
+
+E.g. if we have $N = 8$, the resolvable wavenumbers are in the discrete interval $[-4, 3]$. The wavenumber interval produced by the multiplication is $[-8, 6]$. The amplitude $\hat{f}_5$ will then be added to the amplitude $\hat{f}_{-1}$.
+
+To circumvent this effect, we need to apply methods knowns as dealiasing methods. One of the most polular of these methods is the 2/3-rule proposed by Orszag in 1971.  
+The method constists of deleting the highest 3rd of the spectrum and pad it with zeros instead. Then the multiplication is performed and afterwards the upper third of the spectrum of the result is padded again. Thereby the non-zero modes are only reflected into the upper third of the spectrum, and do not get mixed up with the correctly resolved modes. In the last step the faulty modes can simply be deleted. 
+This method completely removes the aliaing error by the cost of reducing the resoltion by a factor of 2/3. In higher dimension the loss is even greater. Although this sounds pretty dramatic, the high accuracy and efficiency of the pseudo-spectral method is still superior compared to other numerical methods.
+
+### Time integration
+
+(...)
+
+### Analytical diffusion
+
+(...)
+
+### Forcing
+
 (...)
