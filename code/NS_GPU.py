@@ -1,9 +1,9 @@
 import pyTurb
 import time as clock
 
-N = 2048
-k_a = 0.0019
-k_f = 34
+N = 512
+k_a = 1.5
+k_f = 20
 c_res = 1.5
 eps = 1.
 
@@ -29,6 +29,7 @@ while(t < t_end):
   t  = pyTurb.t
   
   t_out += dt
+  # print('time =', t)
   print('time =', t, end='\r')
   
   if (out_stats > num_stats):
