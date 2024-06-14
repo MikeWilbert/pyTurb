@@ -235,11 +235,48 @@ E.g. if we have $N = 8$, the resolvable wavenumbers are in the discrete interval
 
 To circumvent this effect, we need to apply methods knowns as dealiasing methods. One of the most polular of these methods is the 2/3-rule proposed by Orszag in 1971.  
 The method constists of deleting the highest 3rd of the spectrum and pad it with zeros instead. Then the multiplication is performed and afterwards the upper third of the spectrum of the result is padded again. Thereby the non-zero modes are only reflected into the upper third of the spectrum, and do not get mixed up with the correctly resolved modes. In the last step the faulty modes can simply be deleted. 
-This method completely removes the aliaing error by the cost of reducing the resoltion by a factor of 2/3. In higher dimension the loss is even greater. Although this sounds pretty dramatic, the high accuracy and efficiency of the pseudo-spectral method is still superior compared to other numerical methods.
+This method completely removes the aliaing error by the cost of reducing the resoltion by a factor of 2/3. In higher dimension the loss is even greater. Although this sounds pretty dramatic, the high accuracy and efficiency of the pseudo-spectral method is still superior compared to other numerical methods.  
+More information about dealiasing methods and the pseudo-spectral method in general can be found e.g. in the book by [Canuto](https://link.springer.com/book/10.1007/978-3-540-30726-6).
 
 ### Time integration
 
-(...)
+Now that we have an efficient method at hand to evaluate the r.h.s. of the vorticity equation (6), we should think about how to advance the solution in time. This comes down to the numerical solution of ordinary differential equations (ODEs).
+
+Let's look at a one-dimensional ODE of the general form
+
+$$ y'(t) = f(y(t), t).$$
+
+Usually we know $y$ at some start time $t_s$ and want to know it at some final later time $t_f$. Applying the Taylor expansion of $f$ gives
+
+$$ y(t_f) = y(t_s) + y'(t_s) (t_f - t_s) + \mathcal{O}( (t_f-t_s)^2 ).$$
+
+Truncating to second order will only give an acceptable error if the time interval $(t_f - t_s)$ is sufficiently small, which is generally not given.  
+To overcome this difficulty, the time interval $(t_f-t_s)$ can be equally divided into $N$ parts. This givies the discretization $t_s =: t^0 < t^1 < \dots < t^{N-1} =: t_f$. Each discrete time $t^n$ is then seperated by the next time by a time interval $\Delta t = (t_f - t_s) / (N-1)$ and we have $t^n = n\,\Delta t + t_s$. Now we can use the truncated Taylor expansion above to move from one discrete time $t^n$ to the next $t^{n+1}$ until we have covered the whole interval of interest. If $N$ is high enough, then $\Delta t$ might be small enough that the error in each time step is small enough to get a reasonablly good approximation to $y(t_f)$.  
+Each time step is then given by
+$$ y^{n+1} = y^{n} + \Delta t f(y^n, t^n),$$
+with $y^n$ being an approximation to $y(t^n)$. This method is called the *Euler forward* method. Each time step introduces an error of the order of $\mathcal{O}((\Delta t)^2)$. Thus, it is said that the Euler forward method has a local truncation error of order 2.  
+But actually we are interested to arrive at $y(t_f)$. To do so we must perform $N$ Euler steps, each introducing an error of order $\mathcal{O}((\Delta t)^2)$. Since the number of steps $N$ depends also on the time interval $\Delta t$ as $N = (t_f - t_s) / \Delta t \propto 1/\Delta t$, the error to the final result is of order $1/\Delta t \, \mathcal{O}((\Delta t)^2) = \mathcal{O}((\Delta t))$. Therefore, the forward Euler method is said to have a global truncation error of order 1.  
+
+This low order of accuracy implies that the we need a quiet high number of time steps $N$ to get an acceptable result, which in turn might be very expensive in terms of computation time. It is therefore desirable to create methods with higher order. The most common class of methods achieving arbitrary order of convergence
+is the class of the so-called *Runge-Kutta* methods.  
+The basic idea of these methods is no use the Euler method as a starting point to get an approximation of $y$ at some point in the time interval $(t^n, t^{n+1}]$. This gives two values in that interval that can then be combined to give a better approximation to a third one and so on. By combining the approximations in the time step interval in a clever way, methods of arbitarry order and possibly great stability can be created.
+
+As an example, let us consider Heun's method. It is a second order method given by
+$$\begin{align*}
+  y_1 &= y^n + \Delta t f(y^n, t^n)\\
+  y^{n+1} &= y^n + \Delta t \frac{f(y^n, t^n) + f(y_1, t^{n+1})}{2}
+\end{align*}$$
+In Heun's method he function $y$ is approximated at the end of the time step interval by the Euler forward method. Thus we have expresison for $f$ at the left and the right border of the interval and can use their mean value to approximate $f$ in the middle of the time step interval. Heun's method is of order 2.
+
+The method used in the code *pyTurb_2D* is *SSPRK3* method, short for *strong stability preserving Runge-Kutta method of order 3*. It consists of the following steps:
+
+$$\begin{align*}
+  y_1 &= y^n + \Delta t f(y^n, t^n)\\
+  y_2 &= y^n + \frac{\Delta t}{2} \frac{f(y^n, t^n) + f(y_1, t^{n+1})}{2}\\
+  y^{n+1} &= y^n + \frac{\Delta t}{6} \frac{f(y^n, t^n) + 4\,f(y_2, t^{n+1/2}) + f(y_1, t^{n+1})}{2}
+\end{align*}$$
+
+The SSPRK3 method thus uses Heun's method to get approximations to $f$ at the center and the right edge of the time step interval and combines them to a method of order 3.
 
 ### Analytical diffusion
 
