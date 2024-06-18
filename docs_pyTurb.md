@@ -271,17 +271,62 @@ In Heun's method he function $y$ is approximated at the end of the time step int
 The method used in the code *pyTurb_2D* is *SSPRK3* method, short for *strong stability preserving Runge-Kutta method of order 3*. It consists of the following steps:
 
 $$\begin{align*}
-  y_1 &= y^n + \Delta t f(y^n, t^n)\\
-  y_2 &= y^n + \frac{\Delta t}{2} \frac{f(y^n, t^n) + f(y_1, t^{n+1})}{2}\\
-  y^{n+1} &= y^n + \frac{\Delta t}{6} \frac{f(y^n, t^n) + 4\,f(y_2, t^{n+1/2}) + f(y_1, t^{n+1})}{2}
+  y_1 &= y^n + \Delta t \, f(y^n, t^n)\\
+  y_2 &= y^n + \frac{\Delta t}{2} \, \frac{f(y^n, t^n) + f(y_1, t^{n+1})}{2}\\
+  y^{n+1} &= y^n + \Delta t \, \frac{f(y^n, t^n) + 4\,f(y_2, t^{n+1/2}) + f(y_1, t^{n+1})}{6}
 \end{align*}$$
 
 The SSPRK3 method thus uses Heun's method to get approximations to $f$ at the center and the right edge of the time step interval and combines them to a method of order 3.
 
+So far, we have only considered the order of accuracy of the time integration schemes. Another important porperty of a numerical integration method is its stability. Stability refers to the fact that the errors made in each time step will amplify each other so that an unphysical exponential rise in the numerical approximation will occur if the time step is chosen too large.  
+For the SSPRK3 method in 2 dimensions, which is used in *pyTurb_2D*, the stability condition reads
+
+$$\begin{align*}
+  \Delta t \leq \frac{\sqrt{3}}{D_c + D_\nu},
+\end{align*}$$
+
+with 
+
+$$\begin{align*}
+  D_c &= \max \left( \pi \left( \frac{ 1 + |u_x| }{\Delta x} + \frac{ 1 + |u_y| }{\Delta x} \right) \right)\\
+  D_\nu &= \max \left( \nu \,\pi^2 \left( \frac{ 1  }{(\Delta x)^2} + \frac{ 1 }{(\Delta x)^2} \right) \right).
+\end{align*}$$
+
+$D_c$ gives refers to tha advection and $D_\nu$ to the diffusion.  
+This stability criterion can be obtained by applying a Fourier transform to the advection-diffusion equation,which serves as a model problem. For more information we refer to the project by [Marin Lauber](https://github.com/marinlauber/2D-Turbulence-Python/blob/master/src/Theory.ipynb).
+
+From the above stability condition, we observe that the time step $\Delta t$ depends on the grid spacing $\Delta x$. More specific, for the advection part, we have $\Delta t \propto \Delta x$ and for the diffusion we find $\Delta t \propto (\Delta x)^2$. We see that the stability condition arising from the diffusion is a way stronger restrcition on the spatial resolution.  
+
+To overcome this difficulty with the diffusion term, we use the fact that the pure diffusion equation can be solved analytically in Fourier space. This allows us to formulate an ansatz by solving the diffusion term explicitely and thereby ommitting the stability restriction due to diffusion.
+
 ### Analytical diffusion
 
-(...)
+The diffusion equation in Fourier space is given by
 
+$$ \partial_t \omega = - \nu \, k^2 \omega, $$
+
+where for sake of simplicity we ommit the hat symbol over the vorticity symbol $\omega$.
+
+The solution of this equation is simply given by
+
+$$ \omega = \omega(t=0) \, \exp(- \nu \, k^2\,t).$$
+
+Now we write the vorticity equation (5) in the form
+
+$$ \partial_t \omega = \mathcal{L}(w) - \nu \, k^2 \omega, $$
+ with $\mathcal{L}$ including the non-linear term and additional forces.
+
+ The solution of the diffusion equation motivates the ansatz
+
+ $$ \omega = \tilde{\omega} \, \exp(- \nu \, k^2\,t). $$
+
+ Comparing the partial time derivative of the above equation with the general form of the vorticity equation, we find
+
+ $$ \partial_t \tilde{\omega} = \mathcal{L}(\omega) \, \exp(+ \nu \, k^2\,t). $$
+ Thus, we can treat the diffusion anaylitically and solve for the other terms with a numerical method by advancing $\tilde{\omega}$ in time and afterwards computing $\omega$. By that precedure, we get rid of the stability condition imposed by the diffusion term.  
+Note, that the time derivative of $\tilde{\omega}$ depends on $\omega$.
+
+For the implementation of this ansatz for the SSPRRK3 solver please take a look at the file *pyTurb.py*.
 ### Forcing
 
 (...)
