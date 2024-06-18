@@ -4,6 +4,7 @@ import time as clock
 N = 512
 k_a = 1.5
 k_f = 20
+dk_f = 0.5
 c_res = 1.5
 eps = 1.
 
@@ -17,7 +18,7 @@ num_stats = 10
 
 out_dir = "/home/fs1/mw/Turbulence/2D_Turbulence/test"
 
-pyTurb.init(N, k_a, k_f, c_res, eps, out_dir)
+pyTurb.init(N, k_a, k_f, dk_f, c_res, eps, out_dir)
 
 pyTurb.print_vtk()
 start_time = clock.time()
@@ -28,9 +29,7 @@ while(t < t_end):
   dt = pyTurb.dt
   t  = pyTurb.t
   
-  t_out += dt
-  # print('time =', t)
-  print('time =', t, end='\r')
+  t_out += dt  
   
   if (out_stats > num_stats):
     pyTurb.print_stats()

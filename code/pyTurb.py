@@ -6,7 +6,7 @@ import shutil
 import scipy.stats as stats
 from pyevtk.hl import imageToVTK 
 
-def init(N_, k_a_, k_f_, c_res_, eps_, out_dir_):
+def init(N_, k_a_, k_f_, dk_f_, c_res_, eps_, out_dir_):
   
   global N, k_a, k_f, c_res, eps, out_dir
   global k_max, nu, k_nu, alpha
@@ -19,6 +19,7 @@ def init(N_, k_a_, k_f_, c_res_, eps_, out_dir_):
   N       = N_
   k_a     = k_a_
   k_f     = k_f_
+  dk_f     = dk_f_
   c_res   = c_res_
   eps     = eps_
   out_dir = out_dir_
@@ -118,9 +119,7 @@ def calc_dt():
 def calc_force():
   global kx, ky, k2_inv
   global force_W_F
-  global k_f, eps
-  
-  dk_f = 0.5
+  global k_f, dk_f, eps
   
   if (force_on==False):
     return
@@ -140,28 +139,6 @@ def calc_force():
   Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
   force_energy = cp.sqrt( 0.5*cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 )
   force_W_F *= cp.sqrt(eps/dt) / force_energy
-  
-  # Real Space
-  
-  # ~ # with for loop
-  # ~ F_R = cp.zeros((N,N), dtype=complex)
-  # ~ for ix in range(0, N//2+1):
-    # ~ for iy in range(0, N//2+1):
-    
-      # ~ i2 = ix**2+iy**2
-      # ~ if( ( i2 <= (k_f+dk_f)**2 ) & ( i2 >= (k_f-dk_f)**2 ) ):
-        
-        #F_R += i2**(-0.25) * cp.cos( x_val * ix + cp.random.rand()*2.*cp.pi ) * cp.cos( y_val * iy + cp.random.rand()*2.*cp.pi )
-        # ~ F_R += i2**(-0.25) * cp.cos( x_val * ix + y_val * iy + cp.random.rand()*2.*cp.pi )
-  
-  # ~ F_R = F_R.real
-  # ~ force_W_F = cp.fft.fft2(F_R)
-  
-  # ~ # strength
-  # ~ Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
-  # ~ Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
-  # ~ force_energy = cp.sqrt( 0.5* cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 )
-  # ~ force_W_F *= cp.sqrt(eps/dt) / force_energy
   
 def calc_RHS(Win_F):
   
@@ -230,6 +207,7 @@ def step():
   W_F = (W_F + 1./6.*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 1./6.*dt*RHS2_U + 2./3.*dt*RHS3_U * cp.exp(-0.5*nu*k2*dt)
   
   t += dt
+  print('time =', t, end='\r')
   
 def print_scales():
   

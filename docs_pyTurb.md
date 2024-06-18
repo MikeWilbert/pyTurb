@@ -39,6 +39,44 @@ https: </br>
 - run script with `python NS_GPU.py`1
 - Additionally, change parameters in *NS_GPU.py* </br>(E.g. k_f or k_a)
 
+## The module pyTurb
+
+The main tool for simulating 2-dimensional forced turbulence on a single GPU constists of the python module *pyTurb* contained in the file *code/pyTurb.py*. The module *pyTurb* can be loaded from any other python program. In the following the relevant functions for the user are explained.
+
+#### `init(N_, k_a_, k_f_, dk_f_ c_res_, eps_, out_dir_)`
+
+Reads the parameters necessary to specify the simulation parameters. This function needs to be called before any other *pyTurb* function.
+
+| parameter | description |
+| --- | --- |
+| `N` | # of grid points per direction |
+| `k_a` | linear friction wavenumber |
+| `k_f` | middle of forcing wavenumber band|
+| `dk_f` | width of forcing wavenumber band |
+| `c_res` | ratio of maximum resolved wavenumber to diffusion wavenumber $k_{max} / k_{\nu}$. Good value: 3, acceptable value: 1.5 |
+| `eps` | energy input rate |
+| `out_dir` | output directory |
+
+#### `step()`
+
+Performs a single time step.
+
+#### `print_vtk()`
+
+Prints the vorticity field in the vtk format to the output directory specified in the `init` function. That format constits of an XML header which describes the following binary data stored in the file. VTK files can be rea e.g. by *Paraview* for visualization purposes.
+
+#### `print_spectrum()`
+
+Prints the energy spectrum and the corresponding simulation time to the file 'spectra.csv' that can be found in the output directory specified in the `init` function.
+
+#### `print_spectrum()`
+
+Prints the mean energy and dissipation rate and the corresponding simulation time to the file 'stats.csv' that can be found in the output directory specified in the `init` function.
+
+<hr>
+
+For an example file to run a simulation with *pyTurb* we refer to the file 'code/NS_GPU.py'
+
 ## 2D Turbulence
 
 ### Vorticity equation
@@ -327,6 +365,7 @@ $$ \partial_t \omega = \mathcal{L}(w) - \nu \, k^2 \omega, $$
 Note, that the time derivative of $\tilde{\omega}$ depends on $\omega$.
 
 For the implementation of this ansatz for the SSPRRK3 solver please take a look at the file *pyTurb.py*.
+
 ### Forcing
 
-(...)
+Finally, to simulate 2D turbulence in an equilibrium state we have to define a forcing term that drives the turbulence. One common approach is to generate Gaussian white noise in a certain band of wavenumbers. The strength of the foring can be explcitely set by calculating the energy in the band-passed white noise and rescale the forcing to inject a predefined amount of energy. The timescale of the forcing is set to $\Delta t$. This means that the forcing is the same in every Runge-Kutta substep.

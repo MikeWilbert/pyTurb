@@ -171,6 +171,58 @@
 <li>run script with <code>python NS_GPU.py</code>1</li>
 <li>Additionally, change parameters in <em>NS_GPU.py</em> </br>(E.g. k_f or k_a)</li>
 </ul>
+<h2 id="the-module-pyturb">The module pyTurb</h2>
+<p>The main tool for simulating 2-dimensional forced turbulence on a single GPU constists of the python module <em>pyTurb</em> contained in the file <em>code/pyTurb.py</em>. The module <em>pyTurb</em> can be loaded from any other python program. In the following the relevant functions for the user are explained.</p>
+<h4 id="initn_-k_a_-k_f_-dk_f_-c_res_-eps_-out_dir_"><code>init(N_, k_a_, k_f_, dk_f_ c_res_, eps_, out_dir_)</code></h4>
+<p>Reads the parameters necessary to specify the simulation parameters. This function needs to be called before any other <em>pyTurb</em> function.</p>
+<table>
+<thead>
+<tr>
+<th>parameter</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td># of grid points per direction</td>
+</tr>
+<tr>
+<td><code>k_a</code></td>
+<td>linear friction wavenumber</td>
+</tr>
+<tr>
+<td><code>k_f</code></td>
+<td>middle of forcing wavenumber band</td>
+</tr>
+<tr>
+<td><code>dk_f</code></td>
+<td>width of forcing wavenumber band</td>
+</tr>
+<tr>
+<td><code>c_res</code></td>
+<td>ratio of maximum resolved wavenumber to diffusion wavenumber <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mi mathvariant="normal">/</mi><msub><mi>k</mi><mi>ν</mi></msub></mrow><annotation encoding="application/x-tex">k_{max} / k_{\nu}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.06366em;">ν</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>. Good value: 3, acceptable value: 1.5</td>
+</tr>
+<tr>
+<td><code>eps</code></td>
+<td>energy input rate</td>
+</tr>
+<tr>
+<td><code>out_dir</code></td>
+<td>output directory</td>
+</tr>
+</tbody>
+</table>
+<h4 id="step"><code>step()</code></h4>
+<p>Performs a single time step.</p>
+<h4 id="print_vtk"><code>print_vtk()</code></h4>
+<p>Prints the vorticity field in the vtk format to the output directory specified in the <code>init</code> function. That format constits of an XML header which describes the following binary data stored in the file. VTK files can be rea e.g. by <em>Paraview</em> for visualization purposes.</p>
+<h4 id="print_spectrum"><code>print_spectrum()</code></h4>
+<p>Prints the energy spectrum and the corresponding simulation time to the file 'spectra.csv' that can be found in the output directory specified in the <code>init</code> function.</p>
+<h4 id="print_spectrum-1"><code>print_spectrum()</code></h4>
+<p>Prints the mean energy and dissipation rate and the corresponding simulation time to the file 'stats.csv' that can be found in the output directory specified in the <code>init</code> function.</p>
+<hr>
+<p>For an example file to run a simulation with <em>pyTurb</em> we refer to the file 'code/NS_GPU.py'</p>
 <h2 id="2d-turbulence">2D Turbulence</h2>
 <h3 id="vorticity-equation">Vorticity equation</h3>
 <p>Incompressible Navier-Stokes equations with additional linear friction force:</p>
@@ -465,7 +517,7 @@ This stability criterion can be obtained by applying a Fourier transform to the 
 Note, that the time derivative of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>ω</mi><mo>~</mo></mover></mrow><annotation encoding="application/x-tex">\tilde{\omega}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6679em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span><span style="top:-3.35em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">~</span></span></span></span></span></span></span></span></span></span> depends on <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ω</mi></mrow><annotation encoding="application/x-tex">\omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span></span></span>.</p>
 <p>For the implementation of this ansatz for the SSPRRK3 solver please take a look at the file <em><a href="http://pyTurb.py">pyTurb.py</a></em>.</p>
 <h3 id="forcing">Forcing</h3>
-<p>(...)</p>
+<p>Finally, to simulate 2D turbulence in an equilibrium state we have to define a forcing term that drives the turbulence. One common approach is to generate Gaussian white noise in a certain band of wavenumbers. The strength of the foring can be explcitely set by calculating the energy in the band-passed white noise and rescale the forcing to inject a predefined amount of energy. The timescale of the forcing is set to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">\Delta t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal">t</span></span></span></span>. This means that the forcing is the same in every Runge-Kutta substep.</p>
 
             <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
             
