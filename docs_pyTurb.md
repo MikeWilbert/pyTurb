@@ -69,7 +69,7 @@ Prints the vorticity field in the vtk format to the output directory specified i
 
 Prints the energy spectrum and the corresponding simulation time to the file 'spectra.csv' that can be found in the output directory specified in the `init` function.
 
-#### `print_spectrum()`
+#### `print_stats()`
 
 Prints the mean energy and dissipation rate and the corresponding simulation time to the file 'stats.csv' that can be found in the output directory specified in the `init` function.
 

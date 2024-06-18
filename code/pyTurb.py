@@ -8,7 +8,7 @@ from pyevtk.hl import imageToVTK
 
 def init(N_, k_a_, k_f_, dk_f_, c_res_, eps_, out_dir_):
   
-  global N, k_a, k_f, c_res, eps, out_dir
+  global N, k_a, k_f, dk_f, c_res, eps, out_dir
   global k_max, nu, k_nu, alpha
   global L, dx, dk, dt, t
   global W, W_F, force_W, force_W_F
@@ -19,7 +19,7 @@ def init(N_, k_a_, k_f_, dk_f_, c_res_, eps_, out_dir_):
   N       = N_
   k_a     = k_a_
   k_f     = k_f_
-  dk_f     = dk_f_
+  dk_f    = dk_f_
   c_res   = c_res_
   eps     = eps_
   out_dir = out_dir_
