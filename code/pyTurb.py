@@ -64,24 +64,23 @@ def setup():
   global force_on
   
   # Taylor-Green
-  # ~ nu = 0.5
-  # ~ alpha = 0.
-  # ~ force_on = False
+  # nu = 0.5
+  # alpha = 0.
+  # force_on = False
   
-  # ~ W   = ( cp.cos( x_val ) + cp.cos( y_val ) ) 
-  # ~ W_F = cp.fft.fft2(W)
+  # W   = ( cp.cos( x_val ) + cp.cos( y_val ) ) 
+  # W_F = cp.fft.fft2(W)
   
-  # double shear layer
-  # ~ delta = 0.05
-  # ~ sigma = 15./np.pi
-  # ~ nu = 0.0001
-  # ~ alpha = 0.
-  # ~ force_on = False
-  # ~ # force_on = True
+  # double shear layer (benchmark from San et al. 2012: https://arxiv.org/abs/1212.0920)
+  # delta = 0.05
+  # sigma = 15./np.pi
+  # nu = 0.0001
+  # alpha = 0.
+  # force_on = False
   
-  # ~ W                = delta * cp.cos(x_val) - sigma * cp.cosh(sigma* ( y_val - 0.5*cp.pi ) )**(-2.)
-  # ~ W[y_val > cp.pi] = delta * cp.cos(x_val[y_val > cp.pi]) + sigma * cp.cosh(sigma* ( 1.5*cp.pi - y_val[y_val > cp.pi] ) )**(-2.)
-  # ~ W_F = cp.fft.fft2(W)
+  # W                = delta * cp.cos(x_val) - sigma * cp.cosh(sigma* ( y_val - 0.5*cp.pi ) )**(-2.)
+  # W[y_val > cp.pi] = delta * cp.cos(x_val[y_val > cp.pi]) + sigma * cp.cosh(sigma* ( 1.5*cp.pi - y_val[y_val > cp.pi] ) )**(-2.)
+  # W_F = cp.fft.fft2(W)
 
   # self-evolving turbulence
   force_on = True
@@ -124,17 +123,19 @@ def calc_force():
   if (force_on==False):
     return
   
-  # Fourier Space
+  # white noise
   force_W_F = cp.random.randn(N,N) + 1.j * cp.random.randn(N,N)
   
-  index = ( ( k2 > (k_f+dk_f)**2 ) | ( k2 < (k_f-dk_f)**2 )  )
+  # band pass filter
+  index = ( ( k2 > (k_f+dk_f*0.5)**2 ) | ( k2 < (k_f-dk_f*0.5)**2 )  )
   force_W_F[index] = 0.
   
+  # remove imaginary part
   force_W = cp.fft.ifft2(force_W_F)
   force_W = force_W.real
   force_W_F = cp.fft.ifft2(force_W)
   
-  # strength
+  # scale to desired energy input rate
   Ux_F =  1.j*ky*k2_inv*force_W_F; Ux_F[0][0] = 0.
   Uy_F = -1.j*kx*k2_inv*force_W_F; Uy_F[0][0] = 0.
   force_energy = cp.sqrt( 0.5*cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 )
@@ -146,7 +147,7 @@ def calc_RHS(Win_F):
   global nu, alpha
   global k2_inv, k2
   
-  # advection stream function
+  # advection
   psi_F = Win_F * k2_inv; psi_F[0][0] = 0.
   
   gradW_x_F  , gradW_y_F   = grad(Win_F)
@@ -185,18 +186,18 @@ def step():
   
   calc_force()
   
-  # Euler (1. Ordnung)
-  # ~ RHS1_W = calc_RHS(W_F)
-  # ~ W_F = (W_F + dt * RHS1_W) * cp.exp(-nu *k2*dt)
+  # Euler (1. order)
+  # RHS1_W = calc_RHS(W_F)
+  # W_F = (W_F + dt * RHS1_W) * cp.exp(-nu *k2*dt)
   
-  # Heun (2. Ordnung)
-  # ~ RHS1_U = calc_RHS(W_F)
-  # ~ W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
+  # Heun (2. order)
+  # RHS1_U = calc_RHS(W_F)
+  # W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
   
-  # ~ RHS2_U = calc_RHS(W_1)
-  # ~ W_F = (W_F + 0.5*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 0.5*dt*RHS2_U
+  # RHS2_U = calc_RHS(W_1)
+  # W_F = (W_F + 0.5*dt*RHS1_U) * cp.exp(-nu*k2*dt) + 0.5*dt*RHS2_U
   
-  # SSPRK3 (3. Ordnung)
+  # SSPRK3 (3. order)
   RHS1_U = calc_RHS(W_F)
   W_1 = (W_F + dt * RHS1_U) * cp.exp(-nu*k2*dt)
   
@@ -248,7 +249,7 @@ def get_stats():
   Ux_F = + 1.j * ky * k2_inv * W_F; Ux_F[0] = 0.
   Uy_F = - 1.j * kx * k2_inv * W_F; Uy_F[0] = 0.
   
-  energy_gpu = 0.5 * cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 # N**2 wegen Parsevalls Theorem und N**2 wegen Mittelwert 
+  energy_gpu = 0.5 * cp.sum( cp.abs(Ux_F)**2 + cp.abs(Uy_F)**2 ) / N**4 # N**2 because of Parsevalls theorem and N**2 because of mean value
   dissipation_gpu = nu * cp.sum( cp.abs(W_F)**2) / N**4
   
   energy = energy_gpu.get()

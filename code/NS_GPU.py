@@ -4,7 +4,7 @@ import time as clock
 N = 1024
 k_a = 0.5
 k_f = 20
-dk_f = 0.5
+dk_f = 1.
 c_res = 1.5
 eps = 1.
 
