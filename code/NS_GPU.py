@@ -6,10 +6,11 @@ k_a = 0.5
 k_f = 20
 dk_f = 1.
 c_res = 1.5
-eps = 1.
+# eps = 1.
+# eps = k_f**(-2)
 
-t_end = 10.
-t_print = 0.25
+t_end = 40.
+t_print = 1.
 
 t = 0.
 t_out = 0.
@@ -18,7 +19,7 @@ num_stats = 10
 
 out_dir = "/home/fs1/mw/Turbulence/2D_Turbulence/test"
 
-pyTurb.init(N, k_a, k_f, dk_f, c_res, eps, out_dir)
+pyTurb.init(N, k_a, k_f, dk_f, c_res, out_dir)
 
 pyTurb.print_vtk()
 start_time = clock.time()

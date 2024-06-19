@@ -370,3 +370,15 @@ For the implementation of this ansatz for the SSPRRK3 solver please take a look 
 ### Forcing
 
 Finally, to simulate 2D turbulence in an equilibrium state we have to define a forcing term that drives the turbulence. The approach used in *pyTurb* is to generate Gaussian white noise in a certain band of wavenumbers. The strength of the foring can be explcitely set by calculating the energy in the band-passed white noise and rescale the forcing to inject a predefined amount of energy. The timescale of the forcing is set to $\Delta t$. This means that the forcing is the same in every Runge-Kutta substep.
+
+Since we can choose the energy injection rate freely, we will set it in such a way that the time scale of the simulations will be equal to the eddy turnover time associated with the energy injection. In analogy with 3-dimensional turbulence, we will call it the *large eddy turnover time* $T$, altough it does not refer to the largest eddies in 2-dimensional turbulence.  
+$T$ can be defined by
+$$T := \frac{L}{U},$$
+with the characteristic length and velocity scales $L$ and $U$ respectively.  
+Additionally, we can approximate the energy injection rate by
+$$\epsilon \approx \frac{U^2}{T} = \frac{U^3}{L} \approx U^3 \, k_f.$$
+Combining the two above relations, we find an expresseion for the large eddy turnover time as a function of the forcing only.
+$$T_L = \epsilon^{-1/3} \, k_f^{-2/3}$$
+Thus, by setting
+$$\epsilon = k_f^{-2}$$
+we will have $T=1$ in our simulations.

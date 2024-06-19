@@ -6,10 +6,10 @@ import shutil
 import scipy.stats as stats
 from pyevtk.hl import imageToVTK 
 
-def init(N_, k_a_, k_f_, dk_f_, c_res_, eps_, out_dir_):
+def init(N_, k_a_, k_f_, dk_f_, c_res_, out_dir_):
   
-  global N, k_a, k_f, dk_f, c_res, eps, out_dir
-  global k_max, nu, k_nu, alpha
+  global N, k_a, k_f, dk_f, c_res, out_dir
+  global k_max, nu, k_nu, alpha, eps
   global L, dx, dk, dt, t
   global W, W_F, force_W, force_W_F
   global x_val, y_val
@@ -21,14 +21,15 @@ def init(N_, k_a_, k_f_, dk_f_, c_res_, eps_, out_dir_):
   k_f     = k_f_
   dk_f    = dk_f_
   c_res   = c_res_
-  eps     = eps_
   out_dir = out_dir_
   
   k_max = float(N) / 3. # 2/3 dealiasing
   # ~ k_max = float(N) * 0.4 # filter delasing
+  eps = k_f**(-2)
   nu    = c_res**2 * eps**(1./3.) * k_f**(2./3.) * k_max**(-2.)
   k_nu  = k_max / c_res
   alpha = eps**(1./3.) * k_a**(2./3.)
+
   
   L  = 2.*np.pi
   dx = L/N
