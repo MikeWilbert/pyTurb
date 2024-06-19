@@ -173,7 +173,7 @@
 </ul>
 <h2 id="the-module-pyturb">The module pyTurb</h2>
 <p>The main tool for simulating 2-dimensional forced turbulence on a single GPU constists of the python module <em>pyTurb</em> contained in the file <em>code/pyTurb.py</em>. The module <em>pyTurb</em> can be loaded from any other python program. In the following the functions relevant for the user are described.</p>
-<h4 id="initn_-k_a_-k_f_-dk_f_-c_res_-eps_-out_dir_"><code>init(N_, k_a_, k_f_, dk_f_ c_res_, eps_, out_dir_)</code></h4>
+<h4 id="initn_-k_a_-k_f_-dk_f_-c_res_-out_dir_"><code>init(N_, k_a_, k_f_, dk_f_ c_res_, out_dir_)</code></h4>
 <p>Reads the parameters necessary to specify the simulation. This function needs to be called before any other <em>pyTurb</em> function.</p>
 <table>
 <thead>
@@ -202,10 +202,6 @@
 <tr>
 <td><code>c_res_</code></td>
 <td>ratio of maximum resolved wavenumber to diffusion wavenumber <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mi mathvariant="normal">/</mi><msub><mi>k</mi><mi>ν</mi></msub></mrow><annotation encoding="application/x-tex">k_{max} / k_{\nu}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.06366em;">ν</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>. Good value: 3, acceptable value: 1.5</td>
-</tr>
-<tr>
-<td><code>eps_</code></td>
-<td>energy input rate</td>
 </tr>
 <tr>
 <td><code>out_dir_</code></td>

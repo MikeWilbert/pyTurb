@@ -43,7 +43,7 @@ https: </br>
 
 The main tool for simulating 2-dimensional forced turbulence on a single GPU constists of the python module *pyTurb* contained in the file *code/pyTurb.py*. The module *pyTurb* can be loaded from any other python program. In the following the functions relevant for the user are described.
 
-#### `init(N_, k_a_, k_f_, dk_f_ c_res_, eps_, out_dir_)`
+#### `init(N_, k_a_, k_f_, dk_f_ c_res_, out_dir_)`
 
 Reads the parameters necessary to specify the simulation. This function needs to be called before any other *pyTurb* function.
 
@@ -54,7 +54,6 @@ Reads the parameters necessary to specify the simulation. This function needs to
 | `k_f_` | middle of forcing wavenumber band|
 | `dk_f_` | width of forcing wavenumber band |
 | `c_res_` | ratio of maximum resolved wavenumber to diffusion wavenumber $k_{max} / k_{\nu}$. Good value: 3, acceptable value: 1.5 |
-| `eps_` | energy input rate |
 | `out_dir_` | output directory |
 
 #### `step()`
