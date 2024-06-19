@@ -380,4 +380,4 @@ Combining the two above relations, we find an expresseion for the large eddy tur
 $$T_L = \epsilon^{-1/3} \, k_f^{-2/3}$$
 Thus, by setting
 $$\epsilon = k_f^{-2}$$
-we will have $T=1$ in our simulations.
+we will have $t=T$ in our simulations.
