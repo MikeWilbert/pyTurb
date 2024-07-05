@@ -10,7 +10,7 @@ The numerical methods discussed here are implemented in the python module *pyTur
       <source src="./../images/movie.mp4" type="video/mp4">
 </video>  -->
 
- <img width="720" height="720" src="./../images/step_0960.jpg" alt="Girl in a jacket"> 
+ <img width="720" height="720" src="./../images/step_0960.jpg"> 
 
 Above we see a simulation produced with *pyTurb* with a resolution of 1024 points in each spatial direction. Shown is the vorticity field forced from rest at a wavenumber of $k_f = 20$. For the shown 80 turn over times it took about 75 seconds on a A100 Nvidia GPU.
 
@@ -89,7 +89,7 @@ We start by considering the incompressible Navier-Stokes equations with an addit
 
 $$  \begin{align}
   
- \partial_t \mathbf{u} + \mathbf{u} \cdot \nabla \mathbf{u} = - \nabla p &+ \nu \Delta \mathbf{u} - \alpha \mathbf{u} \\ \nabla \cdot \mathbf{u} + \mathbf{f} &= 0 
+ \partial_t \mathbf{u} + \mathbf{u} \cdot \nabla \mathbf{u} = - \nabla p &+ \nu \Delta \mathbf{u} - \alpha \mathbf{u} + \mathbf{f} \\ \nabla \cdot \mathbf{u} &= 0 
 \end{align}$$
 
 | term | name | function |
