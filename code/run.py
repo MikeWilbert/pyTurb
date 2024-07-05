@@ -32,17 +32,17 @@ while(t < t_end):
   
   t_out += dt  
   
-  if (out_stats > num_stats):
-    pyTurb.print_stats()
-    out_stats -= num_stats
+  # if (out_stats > num_stats):
+  #   pyTurb.print_stats()
+  #   out_stats -= num_stats
   
-  if(t_out>t_print):
+  # if(t_out>t_print):
     
-    pyTurb.print_vtk()
-    pyTurb.print_spectrum()
-    t_out -= t_print
+  #   pyTurb.print_vtk()
+  #   pyTurb.print_spectrum()
+  #   t_out -= t_print
   
-  out_stats += 1
+  #   out_stats += 1
     
 duration = clock.time() - start_time
 print('Duration =', duration, '[s]')
