@@ -12,9 +12,11 @@ The numerical methods discussed here are implemented in the python module *pyTur
 
  <img width="720" height="720" src="./../images/step_0960.jpg" alt="Girl in a jacket"> 
 
-Above we see a simulation produced with *pyTurb*. It has a resolution of 1024 points in each spatial direction. For the shown 80 turn over times it took about 75 seconds on a A100 Nvidia GPU. It shows 2-dimensional turbulence forced from rest at a wavenumber of $k_f = 20$.
+Above we see a simulation produced with *pyTurb* with a resolution of 1024 points in each spatial direction. Shown is the vorticity field forced from rest at a wavenumber of $k_f = 20$. For the shown 80 turn over times it took about 75 seconds on a A100 Nvidia GPU.
 
 ## pyTurb
+
+In this section we describe how to run a simulation with *pyTurb*.
 
 ### Download
 

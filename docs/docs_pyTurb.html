@@ -2,7 +2,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>pyTurb&lowbar;2D</title>
+            <title>pyTurb</title>
             <style>
 /* From extension vscode.github */
 /*---------------------------------------------------------------------------------------------
@@ -139,30 +139,33 @@
         
         </head>
         <body class="vscode-body vscode-light">
-            <h1 id="pyturb_2d">pyTurb_2D</h1>
+            <h1 id="pyturb">pyTurb</h1>
 <h2 id="introduction">Introduction</h2>
 <p>In this project we will explore how to simulate 2-dimensional forced turbulence by means of the pseudo-spectral method.<br>
-We will give a coarse introduction to the physical models of  2-dimensional turbulence followed by a discussion on the numerical methods suitable to efficiently simulate this natural phenomenon.<br>
+We will give a coarse introduction to the physical models of 2-dimensional turbulence followed by a discussion on the numerical methods suitable to efficiently simulate this natural phenomenon.<br>
 The numerical methods discussed here are implemented in the python module <em>pyTurb</em>, which is available at my <a href="https://github.com/MikeWilbert">github</a> page. To produce simulations with a practically relevant resolution, <em>pyTurb</em> uses the module <em>cupy</em> to accelerate the code on a single GPU.</p>
-<video width="720" height="720" controls poster="./../images/step_0960.jpg">
+<!-- <video width="720" height="720" controls poster="./../images/step_0960.jpg">
       <source src="./../images/movie.mp4" type="video/mp4">
-</video> 
-<p>Above a simulation produced with <em>pyTurb</em> is shown. It has a resolution of 1024 points in both spatial directions. For the shown 80 turn over times it took about 75 seconds.</p>
-<h2 id="pyturb">pyTurb</h2>
+</video>  -->
+ <img width="720" height="720" src="file:////home/mike/mounts/davinci_home/pyTurb/images/step_0960.jpg" alt="Girl in a jacket"> 
+<p>Above we see a simulation produced with <em>pyTurb</em> with a resolution of 1024 points in each spatial direction. Shown is the vorticity field forced from rest at a wavenumber of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>f</mi></msub><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">k_f = 20</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">20</span></span></span></span>. For the shown 80 turn over times it took about 75 seconds on a A100 Nvidia GPU.</p>
+<h2 id="pyturb-1">pyTurb</h2>
+<p>In this section we describe how to run a simulation with <em>pyTurb</em>.</p>
 <h3 id="download">Download</h3>
+<p>The pyTurb project can be downloaded in the following ways:</p>
 <p>ssh: </br>
-<code>git clone git@gitlab.tp1.ruhr-uni-bochum.de:mw/pyturb_2d.git</code></p>
+<code>git clone https://github.com/MikeWilbert/pyTurb.git</code></p>
 <p>https: </br>
-<code>git clone https://gitlab.tp1.ruhr-uni-bochum.de/mw/pyturb_2d.git</code></p>
-<h3 id="make-test-run">Make test run</h3>
-<ul>
-<li><code>cd pyturb_2d/code</code></li>
-<li>Change path to desired output directory in <em>NS_GPU.py</em></li>
-<li>run script with <code>python NS_GPU.py</code></li>
-<li>Additionally, change parameters in <em>NS_GPU.py</em> </br>(E.g. k_f or k_a)</li>
-</ul>
-<h2 id="the-module-pyturb">The module pyTurb</h2>
-<p>The main tool for simulating 2-dimensional forced turbulence on a single GPU constists of the python module <em>pyTurb</em> contained in the file <em>code/pyTurb.py</em>. The module <em>pyTurb</em> can be loaded from any other python program. In the following the functions relevant for the user are described.</p>
+<code>git clone git@github.com:MikeWilbert/pyTurb.git</code></p>
+<h3 id="test-run">Test run</h3>
+<p>To start a first test run go to the code directory</p>
+<p><code>cd pyturb_2d/code</code></p>
+<p>There you will find the python module <em>pyTurb</em> as well as an example code that usesthe module to run a simulation. Additionally you will find the files <em>plot_stats.py</em> and <em>plot_spectra.py</em> which display makroscopic fluid quantities and the energy spectra produced printed during the simulations, respectively.</p>
+<p>Before you run the execution script with</p>
+<p><code>python NS_GPU.py</code></p>
+<p>you might want to change the output directory as well as the resolution. You can also change other parameters. The patrameters for the simulations are described in detail in the next section.</p>
+<h3 id="functions">Functions</h3>
+<p>In the following the functions included in <em>pyTurb</em> are briefly described.</p>
 <h4 id="initn_-k_a_-k_f_-dk_f_-c_res_-out_dir_"><code>init(N_, k_a_, k_f_, dk_f_ c_res_, out_dir_)</code></h4>
 <p>Reads the parameters necessary to specify the simulation. This function needs to be called before any other <em>pyTurb</em> function.</p>
 <table>
@@ -210,6 +213,7 @@ The numerical methods discussed here are implemented in the python module <em>py
 <hr>
 <p>For an example file to run a simulation with <em>pyTurb</em> we refer to the file 'code/NS_GPU.py'</p>
 <h2 id="2d-turbulence">2D Turbulence</h2>
+<p>In this section, the basic ideas and formulas behind the theory of 2-dimensional turbulence will be discussed.</p>
 <h3 id="vorticity-equation">Vorticity equation</h3>
 <p>We start by considering the incompressible Navier-Stokes equations with an additional linear friction and a random force:</p>
 <p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mtable rowspacing="0.25em" columnalign="right left" columnspacing="0em"><mtr><mtd class ="mtr-glue"></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><msub><mi mathvariant="normal">∂</mi><mi>t</mi></msub><mi mathvariant="bold">u</mi><mo>+</mo><mi mathvariant="bold">u</mi><mo>⋅</mo><mi mathvariant="normal">∇</mi><mi mathvariant="bold">u</mi><mo>=</mo><mo>−</mo><mi mathvariant="normal">∇</mi><mi>p</mi></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>+</mo><mi>ν</mi><mi mathvariant="normal">Δ</mi><mi mathvariant="bold">u</mi><mo>−</mo><mi>α</mi><mi mathvariant="bold">u</mi></mrow></mstyle></mtd><mtd class ="mtr-glue"></mtd><mtd class ="mml-eqn-num"></mtd></mtr><mtr><mtd class ="mtr-glue"></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mi mathvariant="normal">∇</mi><mo>⋅</mo><mi mathvariant="bold">u</mi><mo>+</mo><mi mathvariant="bold">f</mi></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mn>0</mn></mrow></mstyle></mtd><mtd class ="mtr-glue"></mtd><mtd class ="mml-eqn-num"></mtd></mtr></mtable><annotation encoding="application/x-tex">  \begin{align}
